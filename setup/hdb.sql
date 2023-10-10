@@ -1,5 +1,6 @@
 -- Seting up mysql database with admin user privileges.
 CREATE DATABASE IF NOT EXISTS hustle_db;
+CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin123'; 
 GRANT ALL PRIVILEGES ON hustle_db.* TO 'admin'@'localhost';
 GRANT SELECT ON performance_schema.* TO 'admin'@'localhost';
 FLUSH PRIVILEGES;
