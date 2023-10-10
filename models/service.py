@@ -37,6 +37,7 @@ class Service(BaseModel):
     is_verified = Column(Boolean, nullable=False)
 
     # Define relationships
+    user = relationship('User', back_populates='services')
     service_price_packages = relationship('PricePackage', backref='services')
     service_contracts = relationship('Contract', backref='services')
     service_reviews = relationship('ServiceReview', backref='services')

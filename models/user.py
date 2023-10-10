@@ -23,7 +23,7 @@ class User(BaseModel):
     is_verified = Column(Boolean, nullable=False)
 
     # Define relationships
-    user_services = relationship('Service', back_populates='users')
+    services = relationship('Service', back_populates='user')
     user_contracts = relationship('Contract', backref='users')
     user_payments = relationship('Payment', backref='users')
     user_client_reviews = relationship('ClientReview', backref='users')
