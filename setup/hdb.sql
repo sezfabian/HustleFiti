@@ -1,4 +1,11 @@
 -- Seting up mysql database with admin user privileges.
+CREATE DATABASE IF NOT EXISTS hustle_db;
+CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin123';
+GRANT ALL PRIVILEGES ON hustle_db.* TO 'admin'@'localhost';
+GRANT SELECT ON performance_schema.* TO 'admin'@'localhost';
+FLUSH PRIVILEGES;
+
+-- initialize database tables
 USE hustle_db;
 
 -- Initializing database tables.
@@ -131,3 +138,6 @@ CREATE TABLE IF NOT EXISTS `client_reviews` (
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`contract_id`) REFERENCES `contracts`(`id`) ON DELETE CASCADE
 )
+    FOREIGN KEY (`service_category_id`) REFERENCES `service_categories`(`id`) ON DELETE SET NULL,
+    FOREIGN KEY (`price_packages_id`) REFERENCES `price_packages`(`id`) ON DELETE SET NULL
+);
