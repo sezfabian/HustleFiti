@@ -31,20 +31,6 @@ CREATE TABLE IF NOT EXISTS `service_categories`(
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE IF NOT EXISTS `price_packages`(
-    `id` VARCHAR(45) NOT NULL,
-    `created_at` DATETIME NOT NULL,
-    `updated_at` DATETIME NOT NULL,
-    `service_id` VARCHAR(45) NOT NULL,
-    `name` VARCHAR(45) NOT NULL,
-    `description` VARCHAR(255) NOT NULL,
-    `price` DECIMAL(10,2) NOT NULL,
-    `duration` VARCHAR(45),
-
-    PRIMARY KEY (`id`),
-    FOREIGN KEY (`service_id`) REFERENCES `services`(`id`) ON DELETE CASCADE
-);
-
 -- services table
 CREATE TABLE IF NOT EXISTS `services`(
     `id` VARCHAR(45) NOT NULL,
@@ -61,6 +47,19 @@ CREATE TABLE IF NOT EXISTS `services`(
     PRIMARY KEY (`id`),
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`service_category_id`) REFERENCES `service_categories`(`id`) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS `price_packages`(
+    `id` VARCHAR(45) NOT NULL,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NOT NULL,
+    `service_id` VARCHAR(45) NOT NULL,
+    `name` VARCHAR(45) NOT NULL,
+    `description` VARCHAR(255) NOT NULL,
+    `price` DECIMAL(10,2) NOT NULL,
+    `duration` VARCHAR(45),
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`service_id`) REFERENCES `services`(`id`) ON DELETE CASCADE
 );
 
 -- contracts table
@@ -81,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `contracts` (
     PRIMARY KEY (`id`),
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`service_id`) REFERENCES `services`(`id`) ON DELETE CASCADE
-)
+);
 
 -- payments table
 CREATE TABLE IF NOT EXISTS `payments`(
@@ -102,7 +101,7 @@ CREATE TABLE IF NOT EXISTS `payments`(
     PRIMARY KEY (`id`),
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`contract_id`) REFERENCES `contracts`(`id`) ON DELETE CASCADE
-)
+);
 
 CREATE TABLE IF NOT EXISTS `service_reviews` (
     `id` VARCHAR(45) NOT NULL,
@@ -117,7 +116,7 @@ CREATE TABLE IF NOT EXISTS `service_reviews` (
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`contract_id`) REFERENCES `contracts`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`service_id`) REFERENCES `services`(`id`) ON DELETE CASCADE
-)
+);
 
 CREATE TABLE IF NOT EXISTS `client_reviews` (
     `id` VARCHAR(45) NOT NULL,
@@ -130,4 +129,4 @@ CREATE TABLE IF NOT EXISTS `client_reviews` (
     PRIMARY KEY (`id`),
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`contract_id`) REFERENCES `contracts`(`id`) ON DELETE CASCADE
-)
+);
