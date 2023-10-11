@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 import pymysql
-
+from contextlib import contextmanager
 import models
 from models.user import User
 from models.service import ServiceCategory, Service, PricePackage
@@ -15,10 +15,16 @@ from models.contract import Contract
 from models.payment import Payment
 from models.reviews import ServiceReview, ClientReview
 
-classes = {"User": User, "ServiceCategory": ServiceCategory,
-    "Service": Service, "PricePackage": PricePackage,
-    "Contract": Contract, "Payment": Payment,
-    "ServiceReview": ServiceReview, "ClientReview": ClientReview}
+classes = {
+    "ClientReview": ClientReview,
+    "ServiceReview": ServiceReview,
+    "Payment": Payment,
+    "Contract": Contract,
+    "PricePackage": PricePackage,
+    "Service": Service,
+    "ServiceCategory": ServiceCategory,
+    "User": User,
+    }
 
 
 class DBStorage:
@@ -31,6 +37,25 @@ class DBStorage:
 
     __engine = None
     __session = None
+
+    @contextmanager
+    def session_scope(self):
+        """
+        Provide a transactional scope around a series of operations.
+        Yields:
+            session: The session object to be used within the context.
+        Raises:
+            Exception: If an exception occurs during the operations.
+        """
+        session = self.__session
+        try:
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
 
     def __init__(self):
         """Initialize a new DBStorage instance."""
@@ -66,11 +91,13 @@ class DBStorage:
 
     def new(self, obj):
         """Add obj to the current database session."""
-        self.__session.add(obj)
+        with self.session_scope() as session:
+            session.add(obj)
 
     def save(self):
         """Commit all changes to the current database session."""
-        self.__session.commit()
+        with self.session_scope() as session:
+            session.commit()
 
     def delete(self, obj=None):
         """Delete obj from the current database session."""
@@ -118,3 +145,13 @@ class DBStorage:
             count = len(models.storage.all(cls).values())
 
         return count
+
+    def delete_all(self):
+        """
+        Delete all data from the database.
+        """
+        with self.session_scope() as session:
+            for cls in classes.values():
+                objects_to_delete = self.all(cls)
+                for obj in objects_to_delete.values():
+                    session.delete(obj)

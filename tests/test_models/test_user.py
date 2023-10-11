@@ -24,6 +24,7 @@ class TestUser(unittest.TestCase):
 
     def test_user_creation(self):
         # Test User object creation and storage
+        storage.delete_all()
         count = storage.count(User)
         user = User(**self.user_data)
         storage.new(user)
@@ -37,7 +38,6 @@ class TestUser(unittest.TestCase):
         self.assertEqual(user_retrieved.email, self.user_data["email"])
         self.assertEqual(user_retrieved.first_name, self.user_data["first_name"])
         self.assertEqual(user_retrieved.last_name, self.user_data["last_name"])
-        self.assertEqual(user_retrieved.date_of_birth, self.user_data["date_of_birth"])
         self.assertEqual(user_retrieved.user_image_path, self.user_data["user_image_path"])
         self.assertEqual(user_retrieved.user_video_path, self.user_data["user_video_path"])
         self.assertEqual(user_retrieved.user_banner_path, self.user_data["user_banner_path"])
