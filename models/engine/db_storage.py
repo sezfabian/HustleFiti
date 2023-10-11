@@ -8,6 +8,7 @@ from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 import pymysql
 
+import models
 from models.user import User
 from models.service import ServiceCategory, Service, PricePackage
 from models.contract import Contract
