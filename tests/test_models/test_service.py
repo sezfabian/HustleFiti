@@ -63,7 +63,6 @@ class TestService(unittest.TestCase):
 
     def test_service_creation(self):
         # Test Service object creation and storage
-        storage.delete_all()
         count = storage.count(Service)
         user = User(**self.user_data)
         storage.new(user)

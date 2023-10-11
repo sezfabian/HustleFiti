@@ -24,7 +24,6 @@ class TestUser(unittest.TestCase):
 
     def test_user_creation(self):
         # Test User object creation and storage
-        storage.delete_all()
         count = storage.count(User)
         user = User(**self.user_data)
         storage.new(user)
