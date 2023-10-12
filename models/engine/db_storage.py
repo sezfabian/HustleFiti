@@ -60,8 +60,10 @@ class DBStorage:
     def __init__(self):
         """Initialize a new DBStorage instance."""
         self.__engine = create_engine("mysql+pymysql://{}:{}@{}/{}".
-                                      format('admin', 'admin123',
-                                             'localhost', 'hustle_db'),
+                                      format(getenv("ENV_MYSQL_USER"),
+                                             getenv("ENV_MYSQL_PWD"),
+                                             getenv("ENV_MYSQL_HOST"),
+                                             getenv("ENV_MYSQL_DB")),
                                       pool_pre_ping=True)
         if getenv("HBNB_ENV") == "test":
             Base.metadata.drop_all(self.__engine)
