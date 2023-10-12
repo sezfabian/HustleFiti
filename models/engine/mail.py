@@ -32,7 +32,7 @@ class Email:
         try:
             # Send a transactional email
             api_response = api_instance.send_transac_email(send_smtp_email)
-            pprint(api_response)
+            return {"message": "Email sent"}
         except ApiException as e:
             print("Exception when calling SMTPApi->send_transac_email: %s\n" % e)
 
