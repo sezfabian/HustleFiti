@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 """Defines the DBStorage engine."""
-from os import getenv
+import os
+import models
 from models.base_model import Base, BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
-import pymysql
-
+from contextlib import contextmanager
 from models.user import User
 from models.service import ServiceCategory, Service, PricePackage
 from models.contract import Contract
@@ -18,6 +18,12 @@ classes = {"User": User, "ServiceCategory": ServiceCategory,
     "Service": Service, "PricePackage": PricePackage,
     "Contract": Contract, "Payment": Payment,
     "ServiceReview": ServiceReview, "ClientReview": ClientReview}
+
+#HUSTLE_MYSQL_USER = os.getenv('HUSTLE_MYSQL_USER')
+#HUSTLE_MYSQL_PWD = os.getenv('HUSTLE_MYSQL_PWD')
+#HUSTLE_MYSQL_HOST = os.getenv('HUSTLE_MYSQL_HOST')
+#HUSTLE_MYSQL_DB = os.getenv('HUSTLE_MYSQL_DB')
+#HUSTLE_ENV = os.getenv('HUSTLE_ENV')
 
 
 class DBStorage:
@@ -31,13 +37,33 @@ class DBStorage:
     __engine = None
     __session = None
 
+
+    @contextmanager
+    def session_scope(self):
+        """
+        provide a transactional scope around a series of operations.
+        Yields:
+            session: The session object to be used within the context.
+        Raises:
+            Exception: If an exception occurs during the operations
+        """
+        session = self.__session
+        try:
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+
     def __init__(self):
         """Initialize a new DBStorage instance."""
-        self.__engine = create_engine("mysql+pymysql://{}:{}@{}/{}".
-                                      format('admin', 'admin123',
-                                             'localhost', 'hustle_db'),
-                                      pool_pre_ping=True)
-        if getenv("HBNB_ENV") == "test":
+        #self.__engine = create_engine('mysql+mysqldb://' + HUSTLE_MYSQL_USER + ':' + HUSTLE_MYSQL_PWD + '@' + HUSTLE_MYSQL_HOST + '/' + HUSTLE_MYSQL_DB)
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format('admin', 'admin123', 'localhost', 'hustle_db'))
+
+        if os.getenv("HUSTLE_ENV") == "test":
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
@@ -117,3 +143,13 @@ class DBStorage:
             count = len(models.storage.all(cls).values())
 
         return count
+
+    def delete_all(self):
+        """
+        Delete all data from the database
+        """
+        with self.session_scope() as session:
+            for cls in classes.values():
+                objects_to_delete = self.all(cls)
+                for obj in objects_to_delete.values():
+                    session.delete(obj)

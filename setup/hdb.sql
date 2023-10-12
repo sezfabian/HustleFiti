@@ -1,17 +1,15 @@
--- Seting up mysql database with admin user privileges.
+-- Setting up a MySQL database with admin user privileges
 CREATE DATABASE IF NOT EXISTS hustle_db;
-CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin123';
+CREATE USER IF NOT EXISTS 'admin'@'localhost' IDENTIFIED BY 'admin123';
 GRANT ALL PRIVILEGES ON hustle_db.* TO 'admin'@'localhost';
 GRANT SELECT ON performance_schema.* TO 'admin'@'localhost';
 FLUSH PRIVILEGES;
 
--- initialize database tables
+-- Initializing database tables
 USE hustle_db;
 
--- Initializing database tables.
-
--- users table
-CREATE TABLE IF NOT EXISTS `users`(
+-- Users table
+CREATE TABLE IF NOT EXISTS `users` (
     `id` VARCHAR(45) NOT NULL,
     `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NOT NULL,
@@ -29,7 +27,8 @@ CREATE TABLE IF NOT EXISTS `users`(
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE IF NOT EXISTS `service_categories`(
+-- Service Categories table
+CREATE TABLE IF NOT EXISTS `service_categories` (
     `id` VARCHAR(45) NOT NULL,
     `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NOT NULL,
@@ -38,22 +37,8 @@ CREATE TABLE IF NOT EXISTS `service_categories`(
     PRIMARY KEY (`id`)
 );
 
-CREATE TABLE IF NOT EXISTS `price_packages`(
-    `id` VARCHAR(45) NOT NULL,
-    `created_at` DATETIME NOT NULL,
-    `updated_at` DATETIME NOT NULL,
-    `service_id` VARCHAR(45) NOT NULL,
-    `name` VARCHAR(45) NOT NULL,
-    `description` VARCHAR(255) NOT NULL,
-    `price` DECIMAL(10,2) NOT NULL,
-    `duration` VARCHAR(45),
-
-    PRIMARY KEY (`id`),
-    FOREIGN KEY (`service_id`) REFERENCES `services`(`id`) ON DELETE CASCADE
-);
-
--- services table
-CREATE TABLE IF NOT EXISTS `services`(
+-- Services table
+CREATE TABLE IF NOT EXISTS `services` (
     `id` VARCHAR(45) NOT NULL,
     `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NOT NULL,
@@ -70,7 +55,21 @@ CREATE TABLE IF NOT EXISTS `services`(
     FOREIGN KEY (`service_category_id`) REFERENCES `service_categories`(`id`) ON DELETE SET NULL
 );
 
--- contracts table
+-- Price Packages table
+CREATE TABLE IF NOT EXISTS `price_packages` (
+    `id` VARCHAR(45) NOT NULL,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NOT NULL,
+    `service_id` VARCHAR(45) NOT NULL,
+    `name` VARCHAR(45) NOT NULL,
+    `description` VARCHAR(255) NOT NULL,
+    `price` DECIMAL(10,2) NOT NULL,
+    `duration` VARCHAR(45),
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`service_id`) REFERENCES `services`(`id`) ON DELETE CASCADE
+);
+
+-- Contracts table
 CREATE TABLE IF NOT EXISTS `contracts` (
     `id` VARCHAR(45) NOT NULL,
     `created_at` DATETIME NOT NULL,
@@ -88,10 +87,10 @@ CREATE TABLE IF NOT EXISTS `contracts` (
     PRIMARY KEY (`id`),
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`service_id`) REFERENCES `services`(`id`) ON DELETE CASCADE
-)
+);
 
--- payments table
-CREATE TABLE IF NOT EXISTS `payments`(
+-- Payments table
+CREATE TABLE IF NOT EXISTS `payments` (
     `id` VARCHAR(45) NOT NULL,
     `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NOT NULL,
@@ -105,12 +104,12 @@ CREATE TABLE IF NOT EXISTS `payments`(
     `account_number` VARCHAR(45),
     `bank` VARCHAR(45),
     `payment_status` VARCHAR(45) NOT NULL,
-    
     PRIMARY KEY (`id`),
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`contract_id`) REFERENCES `contracts`(`id`) ON DELETE CASCADE
-)
+);
 
+-- Service Reviews table
 CREATE TABLE IF NOT EXISTS `service_reviews` (
     `id` VARCHAR(45) NOT NULL,
     `created_at` DATETIME NOT NULL,
@@ -124,8 +123,9 @@ CREATE TABLE IF NOT EXISTS `service_reviews` (
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`contract_id`) REFERENCES `contracts`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`service_id`) REFERENCES `services`(`id`) ON DELETE CASCADE
-)
+);
 
+-- Client Reviews table
 CREATE TABLE IF NOT EXISTS `client_reviews` (
     `id` VARCHAR(45) NOT NULL,
     `created_at` DATETIME NOT NULL,
@@ -137,7 +137,5 @@ CREATE TABLE IF NOT EXISTS `client_reviews` (
     PRIMARY KEY (`id`),
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`contract_id`) REFERENCES `contracts`(`id`) ON DELETE CASCADE
-)
-    FOREIGN KEY (`service_category_id`) REFERENCES `service_categories`(`id`) ON DELETE SET NULL,
-    FOREIGN KEY (`price_packages_id`) REFERENCES `price_packages`(`id`) ON DELETE SET NULL
 );
+
