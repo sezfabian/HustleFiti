@@ -5,18 +5,14 @@ ServiceCategories and PricePackages
 """
 from sqlalchemy import Column, String, DateTime, Boolean, DECIMAL, ForeignKey
 from sqlalchemy.orm import relationship
-from models.base_model import Base, BaseModel 
-from models.user import User
-from models.reviews import ServiceReview
-from models.contract import Contract
-from flaskapp.app.extensions import db
+from .base_model import Base, BaseModel
+
 
 class ServiceCategory(BaseModel):
     """
     Implements the ServiceCategory class
     """
     __tablename__ = 'service_categories'
-    __table_args__ = {'extend_existing': True}
 
     name = Column(String(45), nullable=False)
     sub_categories = Column(String(255))
@@ -25,21 +21,20 @@ class ServiceCategory(BaseModel):
     category_services = relationship('Service', backref='service_categories')
 
 
-class Service(BaseModel, db.Model):
+class Service(BaseModel):
     """
     Implements the Service class
     """
     __tablename__ = 'services'
-    __table_args__ = {'extend_existing': True}
 
-    name = db.Column(String(45), nullable=False)
-    description = db.Column(String(255))
-    user_id = db.Column(String(45), ForeignKey('users.id'), nullable=False)
-    service_category_id = db.Column(String(45), ForeignKey('service_categories.id'))
-    image_paths = db.Column(String(255))
-    video_paths = db.Column(String(255))
-    banner_paths = db.Column(String(255))
-    is_verified = db.Column(Boolean, nullable=False)
+    name = Column(String(45), nullable=False)
+    description = Column(String(255))
+    user_id = Column(String(45), ForeignKey('users.id'), nullable=False)
+    service_category_id = Column(String(45), ForeignKey('service_categories.id'))
+    image_paths = Column(String(255))
+    video_paths = Column(String(255))
+    banner_paths = Column(String(255))
+    is_verified = Column(Boolean, nullable=False)
 
     # Define relationships
     user = relationship('User', back_populates='services')
@@ -58,7 +53,6 @@ class PricePackage(BaseModel):
     Implements the PricePackage class
     """
     __tablename__ = 'price_packages'
-    __table_args__ = {'extend_existing': True}
 
     name = Column(String(45), nullable=False)
     service_id = Column(String(45), ForeignKey('services.id'), nullable=False)
