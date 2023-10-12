@@ -55,6 +55,17 @@ class BaseModel(Base):
     def delete(self):
         """Delete the current instance from storage."""
         models.storage.delete(self)
+    
+    def update(self, **kwargs):
+        """Update an instance of the class object.
+        Args:
+            **kwargs (dict): Key/value pairs of attributes to update.
+        """
+        for key, value in kwargs.items():
+            if key == "created_at" or key == "updated_at":
+                value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
+            if key != "__class__":
+                setattr(self, key, value)
 
     def __str__(self):
         """Return the print/str representation of the BaseModel instance."""
