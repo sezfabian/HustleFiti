@@ -73,6 +73,30 @@ class Teststorage(unittest.TestCase):
         storage.delete(user_retrieved)
         storage.save()
 
+    def test_db_storage_find_by(self):
+        # User object creation and storage
+        user = User(**self.user_data)
+        storage.new(user)
+        storage.save()
+
+        # Retrieve the user from the storage
+        user_retrieved = storage.find_by(User, email=self.user_data["email"])
+
+        # Assert that the retrieved user matches the original data
+        self.assertEqual(user_retrieved.email, self.user_data["email"])
+        self.assertEqual(user_retrieved.first_name, self.user_data["first_name"])
+        self.assertEqual(user_retrieved.last_name, self.user_data["last_name"])
+        self.assertEqual(user_retrieved.user_image_path, self.user_data["user_image_path"])
+        self.assertEqual(user_retrieved.user_video_path, self.user_data["user_video_path"])
+        self.assertEqual(user_retrieved.user_banner_path, self.user_data["user_banner_path"])
+        self.assertEqual(user_retrieved.is_admin, self.user_data["is_admin"])
+        self.assertEqual(user_retrieved.is_active, self.user_data["is_active"])
+        self.assertEqual(user_retrieved.is_verified, self.user_data["is_verified"])
+
+        # Clean up: Delete the user from the storage
+        storage.delete(user_retrieved)
+        storage.save()
+
 
 if __name__ == '__main__':
     unittest.main()
