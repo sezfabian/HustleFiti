@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS `services`(
     `name` VARCHAR(45) NOT NULL,
     `description` VARCHAR(255),
     `service_category_id` VARCHAR(45),
+    `sub_category` VARCHAR(45),
     `image_paths` VARCHAR(255),
     `video_paths` VARCHAR(255),
     `banner_paths` VARCHAR(255),
@@ -52,6 +53,9 @@ CREATE TABLE IF NOT EXISTS `services`(
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`service_category_id`) REFERENCES `service_categories`(`id`) ON DELETE SET NULL
 );
+
+ALTER TABLE `services` ADD `sub_category` VARCHAR(45);
+
 
 CREATE TABLE IF NOT EXISTS `price_packages`(
     `id` VARCHAR(45) NOT NULL,
