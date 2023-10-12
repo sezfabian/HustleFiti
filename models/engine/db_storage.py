@@ -165,6 +165,14 @@ class DBStorage:
                 return obj
         return None
 
+    def update(self, obj, **kwargs):
+        """
+        Updates an object with new information.
+        """
+        for key, value in kwargs.items():
+            setattr(obj, key, value)
+        self.save()
+
     def delete_all(self):
         """
         Delete all data from the database.

@@ -57,3 +57,21 @@ class Teststorage(unittest.TestCase):
         # Clean up: Delete the user from the storage
         storage.delete(user)
         storage.save()
+
+    def test_create_session(self):
+        # Register new user
+        auth = Auth()
+        user = auth.register_user(self.user_data)
+
+        # Check if login is valid
+        session_id = auth.create_session(self.user_data["email"])
+        self.assertIsNotNone(session_id)
+
+        # Retrieve the user from the storage
+        user = auth._db.find_by(User, **{"email": self.user_data["email"]})
+        self.assertIsNotNone(user)
+        self.assertEqual(user.session_id, session_id)
+
+        # Clean up: Delete the user from the storage
+        storage.delete(user)
+        storage.save()

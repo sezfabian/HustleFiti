@@ -75,3 +75,18 @@ class Auth:
             return False
 
         return False
+    
+    def create_session(self, email: str) -> str:
+        """
+        Try to find the user corresponding to the email,
+        generate a new UUID for the session
+        and store it in the database as the user’s session_id,
+        then return the session ID.
+        """
+        
+        user = self._db.find_by(User, **{"email": email})
+        if user:
+            session_id = _generate_uuid()
+            self._db.update(user, **{"session_id": session_id})
+            return session_id
+        return None
