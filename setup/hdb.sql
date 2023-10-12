@@ -1,6 +1,6 @@
+CREATE DATABASE IF NOT EXISTS hustle_db;
 -- Seting up mysql database with admin user privileges.
 USE hustle_db;
-
 -- Initializing database tables.
 
 -- users table
@@ -13,12 +13,16 @@ CREATE TABLE IF NOT EXISTS `users`(
     `first_name` VARCHAR(45) NOT NULL,
     `last_name` VARCHAR(45) NOT NULL,
     `date_of_birth` DATE NOT NULL,
+    `gender` VARCHAR(45) NOT NULL,
+    `phone_number` VARCHAR(45),
     `user_image_path` VARCHAR(255),
     `user_video_path` VARCHAR(255),
     `user_banner_path` VARCHAR(255),
-    `is_admin` BOOLEAN NOT NULL,
-    `is_active` BOOLEAN NOT NULL,
-    `is_verified` BOOLEAN NOT NULL,
+    `is_admin` BOOLEAN DEFAULT FALSE NOT NULL,
+    `is_active` BOOLEAN DEFAULT TRUE NOT NULL,
+    `is_verified` BOOLEAN DEFAULT FALSE NOT NULL,
+    `session_id` VARCHAR(250),
+    `reset_token` VARCHAR(250),
     PRIMARY KEY (`id`)
 );
 

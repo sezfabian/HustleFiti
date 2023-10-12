@@ -14,6 +14,8 @@ class TestUser(unittest.TestCase):
             "first_name": "John",
             "last_name": "Doe",
             "date_of_birth": datetime(1990, 1, 1),
+            "gender": "Male",
+            "phone_number": "1234567890",
             "user_image_path": "/path/to/image.jpg",
             "user_video_path": "/path/to/video.mp4",
             "user_banner_path": "/path/to/banner.jpg",
