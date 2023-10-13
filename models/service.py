@@ -31,6 +31,7 @@ class Service(BaseModel):
     description = Column(String(255))
     user_id = Column(String(45), ForeignKey('users.id'), nullable=False)
     service_category_id = Column(String(45), ForeignKey('service_categories.id'))
+    sub_category = Column(String(45))
     image_paths = Column(String(255))
     video_paths = Column(String(255))
     banner_paths = Column(String(255))

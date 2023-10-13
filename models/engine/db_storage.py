@@ -126,8 +126,8 @@ class DBStorage:
         if cls not in classes.values():
             return None
 
-        all_cls = self.all(cls)
-        for value in all_cls.values():
+        all_cls_objects = self.all(cls)
+        for value in all_cls_objects.values():
             if (value.id == id):
                 return value
 
@@ -147,6 +147,31 @@ class DBStorage:
             count = len(models.storage.all(cls).values())
 
         return count
+
+    def find_by(self, cls, **kwargs):
+        """
+        Returns the object based on the class name and its ID, or
+        None if not found
+        """
+        if cls not in classes.values():
+            return None
+        
+        all_cls_objects = self.all(cls)
+        for obj in all_cls_objects.values():
+            for key, value in kwargs.items():
+                if getattr(obj, key) != value:
+                    break
+            else:
+                return obj
+        return None
+
+    def update(self, obj, **kwargs):
+        """
+        Updates an object with new information.
+        """
+        for key, value in kwargs.items():
+            setattr(obj, key, value)
+        self.save()
 
     def delete_all(self):
         """
