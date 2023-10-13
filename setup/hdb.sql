@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `users`(
     `is_verified` BOOLEAN DEFAULT FALSE NOT NULL,
     `session_id` VARCHAR(250),
     `reset_token` VARCHAR(250),
+    `verification_token` VARCHAR(20),
     PRIMARY KEY (`id`)
 );
 
