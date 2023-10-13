@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from flask import Flask
 from .extensions import api, db
-from .services_resources import ns
+from .resources import ns
 import os
 
 def create_app():
