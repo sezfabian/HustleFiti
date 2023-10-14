@@ -6,6 +6,7 @@ import uuid
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import InvalidRequestError
 from models import storage
+from models import mail
 from models.user import User
 
 
@@ -90,3 +91,82 @@ class Auth:
             self._db.update(user, **{"session_id": session_id})
             return session_id
         return None
+    
+    def get_user_from_session_id(self, session_id: str) -> User:
+        """
+        Find a user by session_id
+        returns the corresponding User or None.
+        """
+        if session_id is None:
+            return None
+
+        user = self._db.find_by(User, **{"session_id": session_id})
+        if user:
+            return user
+        
+        return None
+
+    def destroy_session(self, user_id: str) -> None:
+        """
+        Destroy a user’s session.
+        """
+        user = self._db.find_by(User, **{"id": user_id})
+        if user:
+            self._db.update(user, **{"session_id": None})
+
+        return None
+
+    def get_reset_password_token(self, email: str) -> str:
+        """
+        Find the user corresponding to the email.
+        If the user does not exist,
+        raise a ValueError exception.
+        If it exists, generate a UUID and
+        update the user’s reset_token database field.
+        Finally, Return the token.
+        """
+        user = self._db.find_by(User, **{"email": email})
+        if user:
+            reset_token = _generate_uuid()
+            self._db.update(user, **{"reset_token": reset_token})
+            mail.send({
+                "email": user.email,
+                "name": user.name,
+                "reset_token": reset_token
+            })
+
+            return reset_token
+
+        return None
+
+    def update_password(self, reset_token: str, password: str) -> None:
+        """
+        takes reset_token string argument
+        and a password string argument.
+        Uses the reset_token to find the corresponding user.
+        If it does not exist, raise a ValueError exception.
+        Otherwise, hash the password and update the user’s
+        hashed_password field with the new hashed password
+        and the reset_token field to None.
+        """
+        user = self._db.find_by(User, **{"reset_token": reset_token})
+        if user:
+            hashed_password = _hash_password(password)
+            self._db.update(user, **{"hashed_password": hashed_password, "reset_token": None})
+            return "Password updated"
+
+        return None
+
+    def verify_account(self, email: str, token: str) -> bool:
+        """
+        Find the user corresponding to the email.
+        If it does not exist, raise a ValueError exception.
+        Otherwise, check the password with bcrypt.checkpw.
+        If it matches, return True.
+        Otherwise, return False.
+        """
+        user = self._db.find_by(User, **{"email": email})
+        if user:
+            if user.is_verified:
+                return 
+            return False

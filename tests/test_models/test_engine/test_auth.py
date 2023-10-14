@@ -75,3 +75,51 @@ class Teststorage(unittest.TestCase):
         # Clean up: Delete the user from the storage
         storage.delete(user)
         storage.save()
+
+    def test_delete_session(self):
+        # Register new user
+        auth = Auth()
+        auth.register_user(self.user_data)
+
+        # Check if login is valid
+        auth = Auth()
+        is_valid = auth.valid_login(self.user_data["email"], self.user_data["password"])
+        if is_valid:
+            session_id = auth.create_session(self.user_data["email"])
+            self.assertIsNotNone(session_id)
+
+            # Retrieve the user from the storage
+            user_retrieved = auth._db.find_by(User, **{"email": self.user_data["email"]})
+            self.assertIsNotNone(user_retrieved)
+            self.assertEqual(user_retrieved.session_id, session_id)
+
+        # delete the session
+        user = auth._db.find_by(User, **{"email": self.user_data["email"]})
+        auth.destroy_session(user.id)
+        user = auth._db.find_by(User, **{"email": self.user_data["email"]})
+        self.assertIsNone(user.session_id)
+
+        # Clean up: Delete the user from the storage
+        # Delete the user from the storage
+        storage.delete(user)
+        storage.save()
+
+    def test_get_user_by_session_id(self):
+        # Register new user
+        auth = Auth()
+        user = auth.register_user(self.user_data)
+
+        # Create session
+        session_id = auth.create_session(self.user_data["email"])
+        self.assertIsNotNone(session_id)
+
+        # Retrieve the user by session ID
+        user = auth.get_user_from_session_id(session_id)
+        self.assertEqual(user.email, self.user_data["email"])
+        
+        # Clean up: Delete the user from the storage
+        storage.delete(user)
+        storage.save()
+
+if __name__ == '__main__':
+    unittest.main

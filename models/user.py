@@ -25,6 +25,7 @@ class User(BaseModel):
     is_verified = Column(Boolean, default=False, nullable=False)
     session_id = Column(String(250))
     reset_token = Column(String(250))
+    verification_token = Column(String(20))
 
     # Define relationships
     services = relationship('Service', back_populates='user')
