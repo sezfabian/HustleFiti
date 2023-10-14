@@ -3,6 +3,7 @@
 """
 import bcrypt
 import uuid
+import random
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import InvalidRequestError
 from models import storage
@@ -57,6 +58,15 @@ class Auth:
         user = User(**user_data_local)
         self._db.new(user)
         self._db.save()
+        
+        # Generate and send a verification code
+        verification_code = str(random.randint(100000, 999999))
+        self._db.update(user, **{"verification_code": verification_code})
+        mail.send(4, {
+            "email": user_data["email"],
+            "name": (user_data["first_name"] + " " + user_data["last_name"]),
+            "code": verification_code
+        })
         return user
 
     def valid_login(self, email: str, password: str) -> bool:
