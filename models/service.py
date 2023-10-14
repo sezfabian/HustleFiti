@@ -11,15 +11,15 @@ from models.reviews import ServiceReview
 from models.contract import Contract
 from flaskapp.app.extensions import db
 
-class ServiceCategory(BaseModel):
+class ServiceCategory(BaseModel, db.Model):
     """
     Implements the ServiceCategory class
     """
     __tablename__ = 'service_categories'
     __table_args__ = {'extend_existing': True}
 
-    name = Column(String(45), nullable=False)
-    sub_categories = Column(String(255))
+    name = db.Column(String(45), nullable=False)
+    sub_categories = db.Column(String(255))
 
     # Define relationships
     category_services = relationship('Service', backref='service_categories')
@@ -53,18 +53,18 @@ class Service(BaseModel, db.Model):
         super().__init__(*args, **kwargs)
 
 
-class PricePackage(BaseModel):
+class PricePackage(BaseModel, db.Model):
     """
     Implements the PricePackage class
     """
     __tablename__ = 'price_packages'
     __table_args__ = {'extend_existing': True}
 
-    name = Column(String(45), nullable=False)
-    service_id = Column(String(45), ForeignKey('services.id'), nullable=False)
-    description = Column(String(255), nullable=False)
-    price = Column(DECIMAL(10, 2), nullable=False)
-    duration = Column(String(45))
+    name = db.Column(String(45), nullable=False)
+    service_id = db.Column(String(45), ForeignKey('services.id'), nullable=False)
+    description = db.Column(String(255), nullable=False)
+    price = db.Column(DECIMAL(10, 2), nullable=False)
+    duration = db.Column(String(45))
 
     # Define relationships
     package_contracts = relationship('Contract', backref='price_packages')

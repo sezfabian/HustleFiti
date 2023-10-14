@@ -61,4 +61,69 @@ price_packages_model_input = api.model('price_packages_input', {
     "duration": fields.String
 })
 
+contract_model = api.model('contract_model', {
+    "id": fields.String,
+    "created_at": fields.String,
+    "updated_at": fields.String,
+    "user_id": fields.String,
+    "service_id": fields.String,
+    "location": fields.String,
+    "duration": fields.String,
+    "price_package_id": fields.String,
+    "total_amount": fields.Float,
+    "contract_start_date": fields.String,
+    "contract_end_date": fields.String,
+    "contract_status": fields.String,
+    "paid_amount": fields.String
+})
 
+contract_model_input = api.model('contract_model_imput', {
+    "user_id": fields.String,
+    "service_id": fields.String,
+    "location": fields.String,
+    "duration": fields.String,
+    "price_package_id": fields.String,
+    "total_amount": fields.Float,
+    "contract_start_date": fields.String,
+    "contract_end_date": fields.String,
+    "contract_status": fields.String,
+    "paid_amount": fields.String
+})
+
+
+service_reviews_model = api.model('service_reviews', {
+    "id": fields.String(format='uuid'),
+    "created_at": fields.String,
+    "updated_at": fields.String,
+    "user_id": fields.String,
+    "contract_id": fields.String,
+    "service_id": fields.String,
+    "rating": fields.String,
+    "comment": fields.String
+})
+
+service_reviews_model_input = api.model('service_reviews_input', {
+    "user_id": fields.String,
+    "contract_id": fields.String,
+    "service_id": fields.String,
+    "rating": fields.String,
+    "comment": fields.String
+})
+
+
+client_reviews_model = api.model('client_review', {
+    "id": fields.String,
+    "created_at": fields.String,
+    "updated_at": fields.String,
+    "contract_id": fields.String,
+    "user_id": fields.String,
+    "rating": fields.Float,
+    "comment": fields.String
+})
+
+client_reviews_model_input = api.model('client_review_input', {
+    "contract_id": fields.String,
+    "user_id": fields.String,
+    "rating": fields.Float,
+    "comment": fields.String
+})
