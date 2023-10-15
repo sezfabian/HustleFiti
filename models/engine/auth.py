@@ -178,5 +178,9 @@ class Auth:
         user = self._db.find_by(User, **{"email": email})
         if user:
             if user.is_verified:
-                return 
-            return False
+                return True
+            if user.verification_token == token:
+                self._db.update(user, **{"is_verified": True})
+                return True
+        
+        return False
