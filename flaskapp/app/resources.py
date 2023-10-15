@@ -7,6 +7,7 @@ from .extensions import db
 
 ns = Namespace('api')
 
+
 @ns.route('/services')
 class ServicesListApi(Resource):
     """get all services"""
@@ -33,7 +34,7 @@ class ServicesListApi(Resource):
         return service, 201
 
 
-@ns.route('/service/<int:id>')
+@ns.route('/service/<string:id>')
 class ServiceApi(Resource):
     @ns.marshal_with(services_model)
     def get(self, id):
@@ -82,7 +83,7 @@ class ServiceCategoryListApi(Resource):
         return service_category, 201
 
 
-@ns.route('/service_category/<int:id>')
+@ns.route('/service_category/<string:id>')
 class ServiceCategoryApi(Resource):
     @ns.marshal_with(service_category_model)
     def get(self, id):
@@ -128,7 +129,7 @@ class PricePackageListApi(Resource):
         db.session.commit()
         return price_package, 201
 
-@ns.route('/price_packages/<int:id>')
+@ns.route('/price_packages/<string:id>')
 class PricePackagesApi(Resource):
     @ns.marshal_with(price_packages_model)
     def get(self, id):
@@ -180,7 +181,7 @@ class ContractListApi(Resource):
         db.session.commit()
         return contract, 201
 
-@ns.route('/contract/<int:id>')
+@ns.route('/contract/<string:id>')
 class ContractApi(Resource):
     @ns.marshal_with(contract_model)
     def get(self, id):
@@ -232,7 +233,7 @@ class ServiceReviewListApi(Resource):
         db.session.commit()
         return service_review, 201
 
-@ns.route('/service_review/<int:id>')
+@ns.route('/service_review/<string:id>')
 class ServiceReviewiApi(Resource):
     @ns.marshal_with(service_reviews_model)
     def get(self, id):
@@ -252,7 +253,7 @@ class ServiceReviewiApi(Resource):
         db.session.commit()
         return service_review, 201
 
-    def delete(self):
+    def delete(self, id):
         service_review = db.session.execute(db.select(ServiceReview).filter_by(id=id)).scalar_one()
         db.session.delete(service_review)
         db.session.commit()
@@ -278,7 +279,7 @@ class ClientReviewListApi(Resource):
         db.session.commit()
         return client_review, 201
 
-@ns.route('/client_review/<int:id>')
+@ns.route('/client_review/<string:id>')
 class ClientReviewApi(Resource):
     @ns.marshal_with(client_reviews_model)
     def get(self, id):
