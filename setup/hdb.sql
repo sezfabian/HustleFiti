@@ -55,8 +55,6 @@ CREATE TABLE IF NOT EXISTS `services`(
     FOREIGN KEY (`service_category_id`) REFERENCES `service_categories`(`id`) ON DELETE SET NULL
 );
 
-ALTER TABLE `services` ADD `sub_category` VARCHAR(45);
-
 
 CREATE TABLE IF NOT EXISTS `price_packages`(
     `id` VARCHAR(45) NOT NULL,
