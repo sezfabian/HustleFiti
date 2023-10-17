@@ -1,11 +1,9 @@
-from flask import Flask, render_template, request
-from flask_cors import CORS
-import os
-from os import getenv
-from models import storage
-from models.engine.mail import Email
-storage = DBStorage()
-mail = Email()
-storage.reload()
+from flask import Flask
+from api.user_endpoints import user_endpoints
+app = Flask(__name__)
 
-print(storage.all())
+# Register the user endpoints blueprint
+app.register_blueprint(user_endpoints)
+
+if __name__ == '__main__':
+    app.run(debug=True)
