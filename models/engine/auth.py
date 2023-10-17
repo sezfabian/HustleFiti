@@ -55,13 +55,14 @@ class Auth:
         
         # Create new user    
         user_data_local["hashed_password"] = _hash_password(password)
-        user = User(**user_data_local)
-        self._db.new(user)
-        self._db.save()
-        
         # Generate and send a verification code
         verification_code = str(random.randint(100000, 999999))
-        self._db.update(user, **{"verification_code": verification_code})
+        user_data_local["verification_token"] = verification_code
+        user = User(**user_data_local)
+        # Store the new user
+        self._db.new(user)
+        self._db.save()
+        # Send verification code
         mail.send(4, {
             "email": user_data["email"],
             "name": (user_data["first_name"] + " " + user_data["last_name"]),
@@ -78,6 +79,8 @@ class Auth:
         """
         try:
             user = self._db.find_by(User, **{"email": email})
+            if user is None:
+                return False
             stored_password = user.hashed_password.encode('utf-8')  # Ensure stored password is in bytes
             entered_password = password.encode('utf-8')  # Encode entered password to bytes
             if bcrypt.checkpw(entered_password, stored_password):
