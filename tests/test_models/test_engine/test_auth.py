@@ -9,7 +9,7 @@ class Teststorage(unittest.TestCase):
     def setUp(self):
         # Set up test data
         self.user_data = {
-            "email": "test3@example.com",
+            "email": "cheruiyotfabian@yahoo.com",
             "password": "password123",
             "first_name": "John",
             "last_name": "Doe",
