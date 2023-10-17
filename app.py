@@ -1,4 +1,4 @@
-from flask import Flask, requests
+from flask import Flask
 from api.user_endpoints import user_endpoints
 app = Flask(__name__)
 
