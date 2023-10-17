@@ -9,11 +9,11 @@ from sqlalchemy.orm import sessionmaker
 import pymysql
 from contextlib import contextmanager
 import models
-from ..user import User
-from ..service import ServiceCategory, Service, PricePackage
-from ..contract import Contract
-from ..payment import Payment
-from ..reviews import ServiceReview, ClientReview
+from models.user import User
+from models.service import ServiceCategory, Service, PricePackage
+from models.contract import Contract
+from models.payment import Payment
+from models.reviews import ServiceReview, ClientReview
 
 classes = {
     "ClientReview": ClientReview,

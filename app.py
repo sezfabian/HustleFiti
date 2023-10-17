@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request
-from flask_cors import CORS
-import os
+from flask import Flask
+from api.user_endpoints import user_endpoints
+app = Flask(__name__)
 
-from models import storage
+# Register the user endpoints blueprint
+app.register_blueprint(user_endpoints)
 
-print(storage.all())
+if __name__ == '__main__':
+    app.run(debug=True)
