@@ -9,7 +9,7 @@ import time
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from pprint import pprint
-
+import ssl
 class Email:
     # Configure API key authorization: api-key
     configuration = sib_api_v3_sdk.Configuration()
@@ -32,9 +32,10 @@ class Email:
         try:
             # Send a transactional email
             api_response = api_instance.send_transac_email(send_smtp_email)
+            # Destroy the instance of the API class
             return {"message": "Email sent"}
         except ApiException as e:
-            print("Exception when calling SMTPApi->send_transac_email: %s\n" % e)
+            return {"error": e}
 
     def __init__(self):
         pass

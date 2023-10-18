@@ -1,117 +1,101 @@
-from flask import Blueprint, Flask, jsonify, request
+from fastapi import APIRouter, HTTPException, Depends, Cookie
+from fastapi.responses import JSONResponse
 from models.engine.auth import Auth
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.exc import InvalidRequestError
 from datetime import datetime
+from pydantic import BaseModel
+from typing import Optional, Dict
 
 auth = Auth()
 
-user_endpoints = Blueprint('user_endpoints', __name__)
+user_router = APIRouter()
 
-# Endpoint to register a new user
-@user_endpoints.route('/user/register', methods=['POST'])
-def register_user():
-    # Get the user data from the request body
-    user_data = request.json
+class UserCreate(BaseModel):
+    email: str
+    password: str
+    first_name: str
+    last_name: str
+    date_of_birth: str
+    gender: str
+    phone_number: str
+    user_image_path: str
+    user_video_path: str
+    user_banner_path: str
+    is_admin: bool
+    is_active: bool
 
-    # Validate the user data
-    required_fields = {
-    "email", "password", "first_name", "last_name",
-    "date_of_birth", "gender", "phone_number", "user_image_path",
-    "user_video_path", "user_banner_path", "is_admin", "is_active"
-    }
+class UserSession(BaseModel):
+    email: str
+    password: str
 
-    json_keys = set(user_data.keys())
+class UserVerification(BaseModel):
+    email: str
+    token: str
 
-    if required_fields.issubset(json_keys) is False:
-        return jsonify({'error': 'Missing fields'}), 400
-
-    user_data['date_of_birth'] = datetime.strptime(user_data['date_of_birth'], '%Y-%m-%d')
-
-    # Register the user using the `auth` object
+@user_router.post("/register", response_model=dict)
+async def register_user(user_data: UserCreate):
     try:
-        auth.register_user(user_data)
-        return jsonify({'message': 'User created successfully', 'email': user_data['email']}), 201
+        user_data_dict = user_data.dict()
+        user_data_dict['date_of_birth'] = user_data.date_of_birth
+        auth.register_user(user_data_dict)
+        return {"message": "User created successfully", "email": user_data.email}
     except ValueError:
-        return jsonify({'error': 'User already exists'}), 409
-    except InvalidRequestError:
-        return jsonify({'error': 'Missing password'}), 400
+        raise HTTPException(status_code=409, detail="User already exists")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-# Endpoint to login a user
-@user_endpoints.route('/user/sessions', methods=['POST'])
-def login():
-    """
-    create a new session for the user,
-    store the session ID as a cookie with key
-    "session_id" on the response
-    and return a JSON payload
-    """
-    email = request.form.get("email")
-    password = request.form.get("password")
-
+@user_router.post("/sessions", response_model=dict)
+async def login(session: UserSession,session_id: str = Cookie(None)):
+    email = session.email
+    password = session.password
     if auth.valid_login(email, password):
         session_id = auth.create_session(email)
-        response = jsonify({"email": email, "message": "logged in"})
-        response.set_cookie("session_id", session_id)
-        return response
+        response = {"email": email, "message": "logged in"}
+        return JSONResponse(content=response, headers={"Set-Cookie": f"session_id={session_id}"})
+    raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    return jsonify({"error": "Invalid credentials"})
-
-# Endpoint to logout a user
-@user_endpoints.route('/user/sessions', methods=['DELETE'])
-def logout():
-    """Destroy a user’s session
-    """
-    session_id = request.cookies.get("session_id")
-
-    user = auth.get_user_from_session_id(session_id)
-
-    if user is None:
-        return jsonify({"error": "User not logged in"}), 401
-
-    response = jsonify({"email": None, "message": "logged out"})
-    response.set_cookie("session_id", None)
-
-# Endpoint to get the user profile details
-@user_endpoints.route("/user/profile", methods=["GET"])
-def profile():
-    """
-    Return the current user’s profile
-    """
-    session_id = request.cookies.get("session_id")
+@user_router.delete("/sessions", response_model=dict)
+async def logout(session_id: str = Cookie(None)):
     user = auth.get_user_from_session_id(session_id)
     if user is None:
-        return jsonify({"error": "User not logged in"}), 401
+        raise HTTPException(status_code=401, detail="User not logged in")
+    response = {"email": None, "message": "logged out"}
+    return JSONResponse(content=response, headers={"Set-Cookie": "session_id=; Max-Age=0;"})
+
+@user_router.get("/profile", response_model=dict)
+async def profile(session_id: str = Cookie(None)):
+    user = auth.get_user_from_session_id(session_id)
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not logged in")
     user_data = user.to_dict()
     del user_data["hashed_password"]
     del user_data["reset_token"]
     del user_data["verification_token"]
     del user_data["session_id"]
-    return jsonify(user_data)
+    del user_data["__class__"]
+    return user_data
 
-
-# Endpoint to update the user details
-@user_endpoints.route('/user/profile', methods=['PUT'])
-def update_user_details():
-    # Get the session ID from the request
-    session_id = request.cookies.get("session_id")
-    # Check if the user is logged in
+@user_router.put("/profile", response_model=dict)
+async def update_user_details(user_data: Dict, session_id: str = Cookie(None)):
     user = auth.get_user_from_session_id(session_id)
     if user is None:
-        return jsonify({"error": "User not logged in"}), 401
+        raise HTTPException(status_code=401, detail="User not logged in")
+    try:
+        user_data["session_id"] = session_id
+        updated_user = auth.update_user_details(user_data, user)
+        user_data = updated_user.to_dict()
+        del user_data["hashed_password"]
+        del user_data["reset_token"]
+        del user_data["verification_token"]
+        del user_data["session_id"]
+        del user_data["__class__"]
+        return user_data
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-    # Get the user data from the request body
-    user_data = request.json
-
-    # Update the user details using the `auth` object
-    auth.update_user_details(user_data)
-
-    # Return the updated user object
-    user = auth.get_user_details()
-    user_data = user.to_dict()
-    del user_data["hashed_password"]
-    del user_data["reset_token"]
-    del user_data["verification_token"]
-    del user_data["session_id"]
-
-    return jsonify(user_data), 200
+@user_router.post("/verify", response_model=dict)
+async def verify(verification_data: UserVerification):
+    try:
+        auth.verify_account(verification_data.email, verification_data.token)
+        return {"message": "User verified successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Verification Code invalid")
