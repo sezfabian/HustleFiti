@@ -3,6 +3,7 @@ pymysql
 sqlalchemy
 pytest
 sib_api_v3_sdk
-flask-restx
-Flask-Scaffold
+fastapi
+flask_restx
 flask_cors
+Flask-Scaffold
