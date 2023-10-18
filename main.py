@@ -5,7 +5,7 @@ from api.user_endpoints import user_router
 from api.service_endpoints import service_router
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(swagger_ui_parameters={"syntaxHighlight.theme": "obsidian"})
+app = FastAPI(swagger_ui_parameters={"deepLinking": True,})
 
 
 
@@ -41,10 +41,16 @@ def custom_openapi():
 app.openapi = custom_openapi
 
 # Route for the root path ("/") to redirect to Redoc documentation
-@app.get("/", response_class=RedirectResponse)
-async def redirect_to_redoc():
+@app.get("/", response_class=RedirectResponse, tags=["documentation"])
+async def redoc():
     # Redirect to the Redoc endpoint
     return "/redoc"
+
+# Route for the root path ("/docs") to redirect to Swagger documentation
+@app.get("/docs", response_class=RedirectResponse, tags=["documentation"])
+async def docs():
+    # Redirect to the Redoc endpoint
+    return "/docs"
 
 if __name__ == '__main__':
     import uvicorn

@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS `users`(
     `hashed_password` VARCHAR(255) NOT NULL,
     `first_name` VARCHAR(45) NOT NULL,
     `last_name` VARCHAR(45) NOT NULL,
+    `username` VARCHAR(45) NOT NULL UNIQUE,
     `date_of_birth` DATE NOT NULL,
     `gender` VARCHAR(45) NOT NULL,
     `phone_number` VARCHAR(45),
@@ -54,9 +55,6 @@ CREATE TABLE IF NOT EXISTS `services`(
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`service_category_id`) REFERENCES `service_categories`(`id`) ON DELETE SET NULL
 );
-
-ALTER TABLE `services` ADD `sub_category` VARCHAR(45);
-
 
 CREATE TABLE IF NOT EXISTS `price_packages`(
     `id` VARCHAR(45) NOT NULL,

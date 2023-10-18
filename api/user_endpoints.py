@@ -14,14 +14,13 @@ class UserCreate(BaseModel):
     password: str
     first_name: str
     last_name: str
+    username: str
     date_of_birth: str
     gender: str
     phone_number: str
     user_image_path: str
     user_video_path: str
     user_banner_path: str
-    is_admin: bool
-    is_active: bool
 
 class UserSession(BaseModel):
     email: str
@@ -38,13 +37,13 @@ async def register_user(user_data: UserCreate):
         user_data_dict['date_of_birth'] = user_data.date_of_birth
         auth.register_user(user_data_dict)
         return {"message": "User created successfully", "email": user_data.email}
-    except ValueError:
-        raise HTTPException(status_code=409, detail="User already exists")
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 @user_router.post("/sessions", response_model=dict)
-async def login(session: UserSession,session_id: str = Cookie(None)):
+async def login(session: UserSession, session_id: str = Cookie(None)):
     email = session.email
     password = session.password
     if auth.valid_login(email, password):
@@ -99,3 +98,14 @@ async def verify(verification_data: UserVerification):
         return {"message": "User verified successfully"}
     except Exception as e:
         raise HTTPException(status_code=400, detail="Verification Code invalid")
+
+#Delete user account
+@user_router.delete("/delete", response_model=dict)
+async def delete_user(session_id: str = Cookie(None)):
+    user = auth.get_user_from_session_id(session_id)
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not logged in")
+    if auth.delete_user(user):
+        return {"message": "User deleted successfully"}
+
+    raise HTTPException(status_code=404, detail="User not found")
