@@ -1,95 +1,101 @@
-from flask import Blueprint
-from flask_restx import Api, Resource, fields
+from fastapi import APIRouter, HTTPException, Depends, Cookie
+from fastapi.responses import JSONResponse
 from models.engine.auth import Auth
 from datetime import datetime
+from pydantic import BaseModel
+from typing import Optional, Dict
 
 auth = Auth()
 
-user_blueprint = Blueprint('user_api', __name__)
-api = Api(user_blueprint)
+user_router = APIRouter()
 
-user_model = api.model('User', {
-    "email": fields.String(required=True),
-    "password": fields.String(required=True),
-    "first_name": fields.String(required=True),
-    "last_name": fields.String(required=True),
-    "date_of_birth": fields.Date(required=True),
-    "gender": fields.String(required=True),
-    "phone_number": fields.String(required=True),
-    "user_image_path": fields.String(required=True),
-    "user_video_path": fields.String(required=True),
-    "user_banner_path": fields.String(required=True),
-    "is_admin": fields.Boolean(required=True),
-    "is_active": fields.Boolean(required=True),
-})
+class UserCreate(BaseModel):
+    email: str
+    password: str
+    first_name: str
+    last_name: str
+    date_of_birth: str
+    gender: str
+    phone_number: str
+    user_image_path: str
+    user_video_path: str
+    user_banner_path: str
+    is_admin: bool
+    is_active: bool
 
+class UserSession(BaseModel):
+    email: str
+    password: str
 
-class UserRegistration(Resource):
-    @api.expect(user_model, validate=True)
-    def post(self):
-        user_data = api.payload
+class UserVerification(BaseModel):
+    email: str
+    token: str
 
-        # Validate the user data
-        required_fields = set(user_model.keys())
-        provided_fields = set(user_data.keys())
+@user_router.post("/register", response_model=dict)
+async def register_user(user_data: UserCreate):
+    try:
+        user_data_dict = user_data.dict()
+        user_data_dict['date_of_birth'] = user_data.date_of_birth
+        auth.register_user(user_data_dict)
+        return {"message": "User created successfully", "email": user_data.email}
+    except ValueError:
+        raise HTTPException(status_code=409, detail="User already exists")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-        if not required_fields.issubset(provided_fields):
-            return {'error': 'Missing fields'}, 400
+@user_router.post("/sessions", response_model=dict)
+async def login(session: UserSession,session_id: str = Cookie(None)):
+    email = session.email
+    password = session.password
+    if auth.valid_login(email, password):
+        session_id = auth.create_session(email)
+        response = {"email": email, "message": "logged in"}
+        return JSONResponse(content=response, headers={"Set-Cookie": f"session_id={session_id}"})
+    raise HTTPException(status_code=401, detail="Invalid credentials")
 
-        user_data['date_of_birth'] = datetime.strptime(user_data['date_of_birth'], '%Y-%m-%d')
+@user_router.delete("/sessions", response_model=dict)
+async def logout(session_id: str = Cookie(None)):
+    user = auth.get_user_from_session_id(session_id)
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not logged in")
+    response = {"email": None, "message": "logged out"}
+    return JSONResponse(content=response, headers={"Set-Cookie": "session_id=; Max-Age=0;"})
 
-        try:
-            auth.register_user(user_data)
-            return {'message': 'User created successfully', 'email': user_data['email']}, 201
-        except ValueError:
-            return {'error': 'User already exists'}, 409
-        except InvalidRequestError:
-            return {'error': 'Missing password'}, 400
+@user_router.get("/profile", response_model=dict)
+async def profile(session_id: str = Cookie(None)):
+    user = auth.get_user_from_session_id(session_id)
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not logged in")
+    user_data = user.to_dict()
+    del user_data["hashed_password"]
+    del user_data["reset_token"]
+    del user_data["verification_token"]
+    del user_data["session_id"]
+    del user_data["__class__"]
+    return user_data
 
-
-class UserSession(Resource):
-    def post(self):
-        email = api.payload.get("email")
-        password = api.payload.get("password")
-
-        if auth.valid_login(email, password):
-            session_id = auth.create_session(email)
-            response = {'email': email, 'message': 'logged in'}
-            return response, 200
-
-        return {'error': 'Invalid credentials'}, 401
-
-
-class UserProfile(Resource):
-    def get(self):
-        session_id = api.payload.get("session_id")
-        user = auth.get_user_from_session_id(session_id)
-
-        if user is None:
-            return {"error": "User not logged in"}, 401
-
-        user_data = user.to_dict()
+@user_router.put("/profile", response_model=dict)
+async def update_user_details(user_data: Dict, session_id: str = Cookie(None)):
+    user = auth.get_user_from_session_id(session_id)
+    if user is None:
+        raise HTTPException(status_code=401, detail="User not logged in")
+    try:
+        user_data["session_id"] = session_id
+        updated_user = auth.update_user_details(user_data, user)
+        user_data = updated_user.to_dict()
         del user_data["hashed_password"]
         del user_data["reset_token"]
         del user_data["verification_token"]
         del user_data["session_id"]
+        del user_data["__class__"]
         return user_data
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-    @api.expect(user_model, validate=True)
-    def put(self):
-        session_id = api.payload.get("session_id")
-        user = auth.get_user_from_session_id(session_id)
-
-        if user is None:
-            return {"error": "User not logged in"}, 401
-
-        user_data = api.payload
-        auth.update_user_details(user_data)
-
-        user = auth.get_user_details()
-        user_data = user.to_dict()
-        del user_data["hashed_password"]
-        del user_data["reset_token"]
-        del user_data["verification_token"]
-        del user_data["session_id"]
-        return user_data, 200
+@user_router.post("/verify", response_model=dict)
+async def verify(verification_data: UserVerification):
+    try:
+        auth.verify_account(verification_data.email, verification_data.token)
+        return {"message": "User verified successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Verification Code invalid")

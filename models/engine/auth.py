@@ -68,7 +68,10 @@ class Auth:
             "name": (user_data["first_name"] + " " + user_data["last_name"]),
             "code": verification_code
         })
-        return user
+        user_dict = user.to_dict()
+
+        user = None
+        return user_dict
 
     def valid_login(self, email: str, password: str) -> bool:
         """
@@ -186,4 +189,17 @@ class Auth:
                 self._db.update(user, **{"is_verified": True})
                 return True
         
-        return False
+        raise ValueError
+
+    def update_user_details(self, user_data: dict, user: User) -> None:
+        """
+        Update the user’s first_name, last_name,
+        date_of_birth, gender, phone_number,
+        and user_image_path fields.
+        """
+        if user:
+            self._db.update(user, **user_data)
+            self._db.save()
+            return self._db.find_by(User, **{"session_id": user_data["session_id"]})
+        
+        return None
