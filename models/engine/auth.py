@@ -35,12 +35,14 @@ class Auth:
         """
 
         # Check if email already exists
-        unique_data = {
-            "email": user_data["email"],
-        }
-        user = self._db.find_by(User, **unique_data)   
+        user = self._db.find_by(User, **{"email": user_data["email"]})   
         if user:
-            raise ValueError("User {} already exists".format(user_data["email"]))
+            raise ValueError("User with email {} already exists".format(user_data["email"]))
+        
+        # Check if username already exists
+        existing_user = self._db.find_by(User, **{"username": user_data["username"]})
+        if existing_user:
+            raise ValueError("Username {} is already taken".format(user_data["username"]))
         
         # create local user data with hashed password
         user_data_local = user_data.copy()
@@ -186,7 +188,7 @@ class Auth:
             if user.is_verified:
                 return True
             if user.verification_token == token:
-                self._db.update(user, **{"is_verified": True})
+                self._db.update(user, **{"is_verified": True, "is_active": True, "verification_token": None})
                 return True
         
         raise ValueError
@@ -201,5 +203,14 @@ class Auth:
             self._db.update(user, **user_data)
             self._db.save()
             return self._db.find_by(User, **{"session_id": user_data["session_id"]})
+    
+    def delete_user(self, user: User) -> None:
+        """
+        Delete the user from the database.
+        """
+        if user:
+            self._db.delete(user)
+            self._db.save()
+            return True
         
         return None
