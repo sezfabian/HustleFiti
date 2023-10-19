@@ -16,6 +16,7 @@ class Contract(BaseModel):
     user_id = Column(String(45), ForeignKey('users.id'), nullable=False)
     service_id = Column(String(45), ForeignKey('services.id'), nullable=False)
     location = Column(String(45), nullable=False)
+    map_link = Column(String(255))
     duration = Column(String(45))
     price_package_id = Column(String(45), ForeignKey('price_packages.id'), nullable=False)
     total_amount = Column(DECIMAL(10, 2))

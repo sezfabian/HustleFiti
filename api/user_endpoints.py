@@ -49,7 +49,7 @@ async def login(session: UserSession, session_id: str = Cookie(None)):
     if auth.valid_login(email, password):
         session_id = auth.create_session(email)
         response = {"email": email, "message": "logged in"}
-        return JSONResponse(content=response, headers={"Set-Cookie": f"session_id={session_id}"})
+        return JSONResponse(content=response, headers={"Set-Cookie": f"session_id={session_id}; Path=/;"})
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
 @user_router.delete("/sessions", response_model=dict)
@@ -58,7 +58,7 @@ async def logout(session_id: str = Cookie(None)):
     if user is None:
         raise HTTPException(status_code=401, detail="User not logged in")
     response = {"email": None, "message": "logged out"}
-    return JSONResponse(content=response, headers={"Set-Cookie": "session_id=; Max-Age=0;"})
+    return JSONResponse(content=response, headers={"Set-Cookie": "session_id=; Path=/; Max-Age=0;"})
 
 @user_router.get("/profile", response_model=dict)
 async def profile(session_id: str = Cookie(None)):
