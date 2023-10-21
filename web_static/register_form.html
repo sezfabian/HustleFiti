@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Account</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Create An Account</h1>
+    <form id="registration-form" enctype="multipart/form-data">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br>
+
+        <label for="first_name">First Name:</label>
+        <input type="text" id="first_name" name="first_name" required><br>
+
+        <label for="last_name">Last Name:</label>
+        <input type="text" id="last_name" name="last_name" required><br>
+
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br>
+
+        <label for="date_of_birth">Date of Birth:</label>
+        <input type="date" id="date_of_birth" name="date_of_birth" required><br>
+
+        <label for="gender">Gender:</label>
+        <select id="gender" name="gender">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+        </select><br>
+
+        <label for="phone_number">Phone Number:</label>
+        <input type="tel" id="phone_number" name="phone_number"><br>
+
+        <label for="user_image">Profile Image:</label>
+        <input type="file" id="user_image" name="user_image"><br>
+
+        <label for="user_video">Profile Video:</label>
+        <input type="file" id="user_video" name="user_video"><br>
+
+        <label for="user_banner">Profile Banner:</label>
+        <input type="file" id="user_banner" name="user_banner"><br>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <div id="message"></div>
+
+    <script>
+        $(document).ready(function() {
+            $('#registration-form').submit(function(e) {
+                e.preventDefault();
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    type: 'POST', 'GET',
+                    url: http://13.234.17.232/user/register,
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        $('#message').text('Registration successful!');
+                    },
+                    error: function(error) {
+                        $('#message').text('Registration failed. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
