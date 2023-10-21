@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS `contracts` (
     `location` VARCHAR(45) NOT NULL,
     `map_link` VARCHAR(255),
     `duration` VARCHAR(45),
+    `costs` DECIMAL(10,2),
     `price_package_id` VARCHAR(45) NOT NULL,
     `total_amount` DECIMAL(10,2),
     `contract_start_date` DATETIME,
