@@ -3,6 +3,7 @@
 """
 import bcrypt
 import uuid
+import random
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import InvalidRequestError
 from models import storage
@@ -34,12 +35,14 @@ class Auth:
         """
 
         # Check if email already exists
-        unique_data = {
-            "email": user_data["email"],
-        }
-        user = self._db.find_by(User, **unique_data)   
+        user = self._db.find_by(User, **{"email": user_data["email"]})   
         if user:
-            raise ValueError("User {} already exists".format(user_data["email"]))
+            raise ValueError("User with email {} already exists".format(user_data["email"]))
+        
+        # Check if username already exists
+        existing_user = self._db.find_by(User, **{"username": user_data["username"]})
+        if existing_user:
+            raise ValueError("Username {} is already taken".format(user_data["username"]))
         
         # create local user data with hashed password
         user_data_local = user_data.copy()
@@ -54,10 +57,23 @@ class Auth:
         
         # Create new user    
         user_data_local["hashed_password"] = _hash_password(password)
+        # Generate and send a verification code
+        verification_code = str(random.randint(100000, 999999))
+        user_data_local["verification_token"] = verification_code
         user = User(**user_data_local)
+        # Store the new user
         self._db.new(user)
         self._db.save()
-        return user
+        # Send verification code
+        mail.send(4, {
+            "email": user_data["email"],
+            "name": (user_data["first_name"] + " " + user_data["last_name"]),
+            "code": verification_code
+        })
+        user_dict = user.to_dict()
+
+        user = None
+        return user_dict
 
     def valid_login(self, email: str, password: str) -> bool:
         """
@@ -68,6 +84,8 @@ class Auth:
         """
         try:
             user = self._db.find_by(User, **{"email": email})
+            if user is None:
+                return False
             stored_password = user.hashed_password.encode('utf-8')  # Ensure stored password is in bytes
             entered_password = password.encode('utf-8')  # Encode entered password to bytes
             if bcrypt.checkpw(entered_password, stored_password):
@@ -168,5 +186,31 @@ class Auth:
         user = self._db.find_by(User, **{"email": email})
         if user:
             if user.is_verified:
-                return 
-            return False
+                return True
+            if user.verification_token == token:
+                self._db.update(user, **{"is_verified": True, "is_active": True, "verification_token": None})
+                return True
+        
+        raise ValueError
+
+    def update_user_details(self, user_data: dict, user: User) -> None:
+        """
+        Update the user’s first_name, last_name,
+        date_of_birth, gender, phone_number,
+        and user_image_path fields.
+        """
+        if user:
+            self._db.update(user, **user_data)
+            self._db.save()
+            return self._db.find_by(User, **{"session_id": user_data["session_id"]})
+    
+    def delete_user(self, user: User) -> None:
+        """
+        Delete the user from the database.
+        """
+        if user:
+            self._db.delete(user)
+            self._db.save()
+            return True
+        
+        return None

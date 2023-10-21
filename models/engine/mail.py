@@ -9,13 +9,13 @@ import time
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from pprint import pprint
-
+import ssl
 class Email:
     # Configure API key authorization: api-key
     configuration = sib_api_v3_sdk.Configuration()
     configuration.api_key['api-key'] = getenv("ENV_HUSTLE_API")
 
-    def send(self, params: dict):
+    def send(self, template_id: int, params: dict):
         """
         creates an instance of the API class
         Sends a transactional email
@@ -24,7 +24,7 @@ class Email:
 
         # SendSmtpEmail | Values to send a transactional email
         send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(to=[{"email":params["email"],"name":params["name"]}],
-                                                       template_id=4, params=params,
+                                                       template_id=template_id, params=params,
                                                        headers={"X-Mailin-custom": "api-key:self.configuration.api_key['api-key']|\
                                                         content_type:application/json|accept:application/json",
                                                        "charset": "iso-8859-1"})
@@ -32,9 +32,10 @@ class Email:
         try:
             # Send a transactional email
             api_response = api_instance.send_transac_email(send_smtp_email)
+            # Destroy the instance of the API class
             return {"message": "Email sent"}
         except ApiException as e:
-            print("Exception when calling SMTPApi->send_transac_email: %s\n" % e)
+            return {"error": e}
 
     def __init__(self):
         pass

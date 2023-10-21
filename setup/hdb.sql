@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS `users`(
     `hashed_password` VARCHAR(255) NOT NULL,
     `first_name` VARCHAR(45) NOT NULL,
     `last_name` VARCHAR(45) NOT NULL,
+    `username` VARCHAR(45) NOT NULL UNIQUE,
     `date_of_birth` DATE NOT NULL,
     `gender` VARCHAR(45) NOT NULL,
     `phone_number` VARCHAR(45),
@@ -46,6 +47,7 @@ CREATE TABLE IF NOT EXISTS `services`(
     `description` VARCHAR(255),
     `service_category_id` VARCHAR(45),
     `sub_category` VARCHAR(45),
+    `locations` VARCHAR(255),
     `image_paths` VARCHAR(255),
     `video_paths` VARCHAR(255),
     `banner_paths` VARCHAR(255),
@@ -54,9 +56,6 @@ CREATE TABLE IF NOT EXISTS `services`(
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`service_category_id`) REFERENCES `service_categories`(`id`) ON DELETE SET NULL
 );
-
-ALTER TABLE `services` ADD `sub_category` VARCHAR(45);
-
 
 CREATE TABLE IF NOT EXISTS `price_packages`(
     `id` VARCHAR(45) NOT NULL,
@@ -79,7 +78,9 @@ CREATE TABLE IF NOT EXISTS `contracts` (
     `user_id` VARCHAR(45) NOT NULL,
     `service_id` VARCHAR(45) NOT NULL,
     `location` VARCHAR(45) NOT NULL,
+    `map_link` VARCHAR(255),
     `duration` VARCHAR(45),
+    `costs` DECIMAL(10,2),
     `price_package_id` VARCHAR(45) NOT NULL,
     `total_amount` DECIMAL(10,2),
     `contract_start_date` DATETIME,

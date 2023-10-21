@@ -17,5 +17,5 @@ class TestEmail(unittest.TestCase):
     
     def test_send_email(self):
         # Test Email object creation and send
-        response = mail.send(self.params)
+        response = mail.send(4, self.params)
         self.assertEqual(response["message"], "Email sent")
