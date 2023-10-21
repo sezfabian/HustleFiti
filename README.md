@@ -13,4 +13,4 @@ An open API for an Online Marketplace for contract service providers HustleFiti 
 [HustleFiti_API(http://13.234.17.232/docs)
 
 ## Read MORE on this Project
-[https://www.notion.so/HustleFiti-Portfolio-Project-eb5f491359cf4a35a5059129ab6d947e]
+[HustleFiti Project Pitch(https://winter-mint-a1c.notion.site/HustleFiti-Portfolio-Project-eb5f491359cf4a35a5059129ab6d947e)]
