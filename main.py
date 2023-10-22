@@ -5,6 +5,7 @@ from api.user_endpoints import user_router
 from api.service_endpoints import service_router
 from api.contract_endpoints import contract_router
 from api.payment_endpoints import payment_router
+from api.reviews_endpoint import reviews_router
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(swagger_ui_parameters={"deepLinking": True,})
@@ -23,6 +24,7 @@ app.include_router(user_router, prefix="/user", tags=["users"])
 app.include_router(service_router, prefix="", tags=["services"])
 app.include_router(contract_router, prefix="/contract", tags=["contracts"])
 app.include_router(payment_router, prefix="/payment", tags=["payments"])
+app.include_router(reviews_router, prefix="/reviews", tags=["reviews"])
 
 def custom_openapi():
     if app.openapi_schema:

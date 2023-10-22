@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from sqlalchemy import Column, String, DateTime, Boolean, DECIMAL, ForeignKey
+from sqlalchemy import Column, String, DateTime, Boolean, Integer, DECIMAL, ForeignKey
 from sqlalchemy.orm import relationship
 from models.base_model import Base, BaseModel
 
@@ -27,6 +27,9 @@ class User(BaseModel):
     session_id = Column(String(250))
     reset_token = Column(String(250))
     verification_token = Column(String(20))
+    no_of_ratings = Column(Integer, default=0)
+    average_rating = Column(DECIMAL(10, 2), default=0)
+
 
     # Define relationships
     services = relationship('Service', back_populates='user')
