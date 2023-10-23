@@ -15,12 +15,12 @@ class UserCreate(BaseModel):
     first_name: str
     last_name: str
     username: str
-    date_of_birth: str
+    date_of_birth: str 
     gender: str
-    phone_number: str
-    user_image_path: str
-    user_video_path: str
-    user_banner_path: str
+    phone_number: str = None
+    user_image_path: str = None
+    user_video_path: str = None
+    user_banner_path: str = None
 
 class UserSession(BaseModel):
     email: str
