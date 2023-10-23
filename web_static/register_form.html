@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Create An Account</h1>
-    <form id="registration-form" enctype="multipart/form-data">
+    <form action='' method='POST' id="registration-form" enctype="multipart/form-data">
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" required><br>
 
@@ -50,28 +50,35 @@
 
     <div id="message"></div>
 
-    <script>
-        $(document).ready(function() {
-            $('#registration-form').submit(function(e) {
-                e.preventDefault();
+   <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const registrationForm = document.getElementById("registration-form");
+            const message = document.getElementById("message");
 
-                var formData = new FormData(this);
+            registrationForm.addEventListener("submit", function(event) {
+                event.preventDefault();
 
-                $.ajax({
-                    type: 'POST', 'GET',
-                    url: http://13.234.17.232/user/register,
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    success: function(response) {
-                        $('#message').text('Registration successful!');
-                    },
-                    error: function(error) {
-                        $('#message').text('Registration failed. Please try again.');
+                const formData = new FormData(this);
+
+                fetch("http://13.234.17.232/user/register", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error("Registration failed. Please try again.");
                     }
+                })
+                .then(data => {
+                    message.textContent = "Registration successful!";
+                })
+                .catch(error => {
+                    message.textContent = error.message;
                 });
             });
         });
-    </script>
+    </script> 
 </body>
 </html>
