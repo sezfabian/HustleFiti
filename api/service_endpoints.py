@@ -201,6 +201,7 @@ async def get_services():
             "user_name": user.username,
             "service_category_id":  obj.service_category_id,
             "sub_category": obj.sub_category,
+            "locations": obj.locations,
             "image_paths": obj.image_paths,
             "video_paths": obj.video_paths,
             "banner_paths": obj.banner_paths,
