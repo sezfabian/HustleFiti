@@ -217,9 +217,25 @@ async def get_services():
 @service_router.get("/services/{id}", response_model=dict)
 async def get_service(id: str):
     service = storage.find_by(Service, **{"id": id})
+
     if service is None:
         raise HTTPException(status_code=404, detail="Service not found")
-    return service.to_dict()
+    
+    service_dict = service.to_dict()
+    packages = storage.all(PricePackage).values()
+    related_packages = []
+
+    for package in packages:
+        if package.service_id == service_dict["id"]:
+            related_packages.append({
+                "id": package.id,
+                "name": package.name,
+                "description": package.description,
+                "duration": package.duration,
+                "price": package.price
+            })
+    service_dict["price_packages"] = related_packages
+    return service_dict
 
 # Update a service
 @service_router.put("/services/{id}", response_model=dict)
