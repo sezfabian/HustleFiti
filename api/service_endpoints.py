@@ -1,3 +1,4 @@
+import uuid
 from fastapi import APIRouter, HTTPException, Depends, Cookie, Path
 from fastapi.responses import JSONResponse
 from datetime import datetime
@@ -63,17 +64,19 @@ def create_service_category(category_data: ServiceCategoryCreate, session_id: st
     if user.to_dict()["is_admin"] != False:
         raise HTTPException(status_code=403, detail="Unauthorized")
 
-    try:
-        category_data_dict = category_data.dict()
-        if storage.find_by(ServiceCategory, **{"name": category_data_dict['name']}):
-            raise HTTPException(status_code=409, detail="Service_Category already exists")
 
+    category_data_dict = category_data.dict()
+
+    if storage.find_by(ServiceCategory, **{"name": category_data_dict['name']}):
+        raise HTTPException(status_code=409, detail="Service_Category already exists")
+    try:
+        category_data_dict["id"] = str(uuid.uuid4())
         new_category = ServiceCategory(**category_data.dict())
         storage.new(new_category)
         storage.save()
         return {"message": "Service_category created sucessfully", "service_category": new_category.to_dict()}
     except Exception as e:
-        raise HTTPException(status_code=409, detail="Category already exixts")
+        raise HTTPException(status_code=409, detail=str(e))
 
 #Get list of service categories
 @service_router.get("/service_categories", response_model=list)
@@ -165,6 +168,7 @@ async def create_service(service_data: ServiceCreate, session_id: str = Cookie(N
         service = Service(**service_data_dict)
         storage.new(service)
         storage.save()
+        service = None
         return {"message": "New Service created succesfully", "service":service_data_dict}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -268,6 +272,7 @@ async def create_service_price_package(package_data: PricePackageCreate, session
         price_package = PricePackage(**package_data_dict)
         storage.new(price_package)
         storage.save()
+        price_package = None
         return {"message": "Service price package created successfully", "price_package": price_package.to_dict()}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -55,25 +55,27 @@ class Auth:
         else:
             raise InvalidRequestError("Missing password")
         
-        # Create new user    
-        user_data_local["hashed_password"] = _hash_password(password)
-        # Generate and send a verification code
-        verification_code = str(random.randint(100000, 999999))
-        user_data_local["verification_token"] = verification_code
-        user = User(**user_data_local)
-        # Store the new user
-        self._db.new(user)
-        self._db.save()
-        # Send verification code
-        mail.send(4, {
-            "email": user_data["email"],
-            "name": (user_data["first_name"] + " " + user_data["last_name"]),
-            "code": verification_code
-        })
-        user_dict = user.to_dict()
-
-        user = None
-        return user_dict
+        # Create new user
+        if user_data_local:
+            user_data_local["id"] = _generate_uuid()
+            user_data_local["hashed_password"] = _hash_password(password)
+            # Generate and send a verification code
+            verification_code = str(random.randint(100000, 999999))
+            user_data_local["verification_token"] = verification_code
+            user = User(**user_data_local)
+            # Store the new user
+            self._db.new(user)
+            self._db.save()
+            # Send verification code
+            mail.send(4, {
+                "email": user_data["email"],
+                "name": (user_data["first_name"] + " " + user_data["last_name"]),
+                "code": verification_code
+            })
+            user_dict = user.to_dict()
+            user_data_local = None
+            user = None
+            return user_dict
 
     def valid_login(self, email: str, password: str) -> bool:
         """
