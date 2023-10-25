@@ -81,6 +81,7 @@ def create_service_category(category_data: ServiceCategoryCreate, session_id: st
 #Get list of service categories
 @service_router.get("/service_categories", response_model=list)
 async def get_service_categories():
+    storage.reload()
     service_categories = storage.all(ServiceCategory).values()
     categories = []
     for category in service_categories:
