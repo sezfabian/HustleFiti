@@ -192,7 +192,7 @@ async def get_services():
             "video_paths": obj.video_paths,
             "banner_paths": obj.banner_paths,
             "no_of_ratings": obj.no_of_ratings,
-            "average_rating: obj.average_rating
+            "average_rating": obj.average_rating
         }
         services_list.append(service)
 
