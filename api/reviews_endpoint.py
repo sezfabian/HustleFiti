@@ -56,6 +56,7 @@ async def create_client_review(contract_id: str, client_review_data: ClientRevie
         storage.update(client, **update_dict)
         storage.new(review)
         storage.save()
+        review = None
         return {"message": "Client review created successfully", "client_review": client_review.to_dict()}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -131,6 +132,7 @@ async def create_service_review(contract_id: str, service_review_data: ServiceRe
 
         storage.update(service, **update_dict)
         storage.save()
+        service_review = None
         return {"message": "Service review created successfully", "service_review": service_review.to_dict()}
 
     except Exception as e:
