@@ -180,7 +180,7 @@ async def get_services():
     services = storage.all(Service).values()
     services_list = []
     for obj in services:
-        user = storage.find_by(User, **{"id": obj.id}
+        user = storage.find_by(User, **{"id": obj.id})
         service = {
             "id": obj.id,
             "name": obj.name,
