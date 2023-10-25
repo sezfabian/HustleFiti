@@ -180,15 +180,19 @@ async def get_services():
     services = storage.all(Service).values()
     services_list = []
     for obj in services:
+        user = storage.find_by(User, **{"id": obj.id}
         service = {
             "id": obj.id,
             "name": obj.name,
             "user_id": obj.user_id,
+            "user_name": user.name,
             "service_category_id":  obj.service_category_id,
             "sub_category": obj.sub_category,
             "image_paths": obj.image_paths,
             "video_paths": obj.video_paths,
-            "banner_paths": obj.banner_paths
+            "banner_paths": obj.banner_paths,
+            "no_of_ratings": obj.no_of_ratings,
+            "average_rating: obj.average_rating
         }
         services_list.append(service)
 
