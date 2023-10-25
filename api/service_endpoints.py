@@ -178,21 +178,36 @@ async def create_service(service_data: ServiceCreate, session_id: str = Cookie(N
 @service_router.get("/services/", response_model=list)
 async def get_services():
     services = storage.all(Service).values()
+    packages = storage.all(PricePackage).values()
     services_list = []
     for obj in services:
-        user = storage.find_by(User, **{"id": obj.id})
+        user = storage.find_by(User, **{"id": obj.user_id})
+
+        related_packages = []
+        for package in packages:
+            if package.service_id == obj.id:
+                related_packages.append({
+                    "id": package.id,
+                    "name": package.name,
+                    "description": package.description,
+                    "duration": package.duration,
+                    "price": package.price
+                })
+
         service = {
             "id": obj.id,
             "name": obj.name,
             "user_id": obj.user_id,
-            "user_name": user.name,
+            "user_name": user.username,
             "service_category_id":  obj.service_category_id,
             "sub_category": obj.sub_category,
             "image_paths": obj.image_paths,
             "video_paths": obj.video_paths,
             "banner_paths": obj.banner_paths,
             "no_of_ratings": obj.no_of_ratings,
-            "average_rating": obj.average_rating
+            "average_rating": obj.average_rating,
+            "is_verified": obj.is_verified,
+            "price_packages": related_packages
         }
         services_list.append(service)
 
