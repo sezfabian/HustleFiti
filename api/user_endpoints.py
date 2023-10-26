@@ -1,3 +1,4 @@
+from os import getenv
 from fastapi import APIRouter, HTTPException, Depends, Cookie
 from fastapi.responses import JSONResponse
 from models.engine.auth import Auth
@@ -48,7 +49,7 @@ async def login(session: UserSession, session_id: str = Cookie(None)):
     password = session.password
     if auth.valid_login(email, password):
         session_id = auth.create_session(email)
-        response = {"email": email, "message": "logged in"}
+        response = {"email": email, "message": "logged in", "encrypted_session_id": session_id + "********"}
         return JSONResponse(content=response, headers={"Set-Cookie": f"session_id={session_id}; Path=/;"})
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
@@ -61,7 +62,9 @@ async def logout(session_id: str = Cookie(None)):
     return JSONResponse(content=response, headers={"Set-Cookie": "session_id=; Path=/; Max-Age=0;"})
 
 @user_router.get("/profile", response_model=dict)
-async def profile(session_id: str = Cookie(None)):
+async def profile(session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
     user = auth.get_user_from_session_id(session_id)
     if user is None:
         raise HTTPException(status_code=401, detail="User not logged in")
