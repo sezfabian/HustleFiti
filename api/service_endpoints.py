@@ -239,7 +239,7 @@ async def get_service(id: str):
     return service_dict
 
 # Get a services by user id
-@service_router.get("/user/services/{id}", response_model=list)
+@service_router.get("/services/user/{id}", response_model=list)
 async def get_user_services(id: str):
     user = storage.find_by(User, **{"id": id})
     services_list = []
