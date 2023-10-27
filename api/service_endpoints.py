@@ -214,7 +214,7 @@ async def get_services():
 
     return services_list
 
-# Get a service by id
+# Get a service by user
 @service_router.get("/services/{id}", response_model=dict)
 async def get_service(id: str):
     service = storage.find_by(Service, **{"id": id})
@@ -237,6 +237,23 @@ async def get_service(id: str):
             })
     service_dict["price_packages"] = related_packages
     return service_dict
+
+# Get a services by user id
+@service_router.get("/user/services/{id}", response_model=list)
+async def get_user_services(id: str):
+    user = storage.find_by(User, **{"id": id})
+    services_list = []
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    try:
+        services = storage.all(Service).values()
+        for service in services:
+            if service.user_id == id:
+                services_list.append(service.to_dict())
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return services_list
 
 # Update a service
 @service_router.put("/services/{id}", response_model=dict)
