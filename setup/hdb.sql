@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS `users`(
     `session_id` VARCHAR(250),
     `reset_token` VARCHAR(250),
     `verification_token` VARCHAR(20),
+    `no_of_ratings` INT DEFAULT 0,
+    `average_rating` DECIMAL(10,2),
     PRIMARY KEY (`id`)
 );
 
@@ -52,6 +54,8 @@ CREATE TABLE IF NOT EXISTS `services`(
     `video_paths` VARCHAR(255),
     `banner_paths` VARCHAR(255),
     `is_verified` BOOLEAN NOT NULL,
+    `no_of_ratings` INT DEFAULT 0,
+    `average_rating` DECIMAL(10,2),
     PRIMARY KEY (`id`),
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`service_category_id`) REFERENCES `service_categories`(`id`) ON DELETE SET NULL
@@ -80,6 +84,7 @@ CREATE TABLE IF NOT EXISTS `contracts` (
     `location` VARCHAR(45) NOT NULL,
     `map_link` VARCHAR(255),
     `duration` VARCHAR(45),
+    `costs` DECIMAL(10,2),
     `price_package_id` VARCHAR(45) NOT NULL,
     `total_amount` DECIMAL(10,2),
     `contract_start_date` DATETIME,

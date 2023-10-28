@@ -25,7 +25,8 @@ class BaseModel(Base):
             *args (any): Unused.
             **kwargs (dict): Key/value pairs of attributes.
         """
-        
+
+        self.id = str(uuid4())
         self.created_at = self.updated_at = datetime.utcnow()
         if kwargs:
             for key, value in kwargs.items():

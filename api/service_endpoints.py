@@ -1,3 +1,4 @@
+import uuid
 from fastapi import APIRouter, HTTPException, Depends, Cookie, Path
 from fastapi.responses import JSONResponse
 from datetime import datetime
@@ -63,21 +64,24 @@ def create_service_category(category_data: ServiceCategoryCreate, session_id: st
     if user.to_dict()["is_admin"] != False:
         raise HTTPException(status_code=403, detail="Unauthorized")
 
-    try:
-        category_data_dict = category_data.dict()
-        if storage.find_by(ServiceCategory, **{"name": category_data_dict['name']}):
-            raise HTTPException(status_code=409, detail="Service_Category already exists")
 
+    category_data_dict = category_data.dict()
+
+    if storage.find_by(ServiceCategory, **{"name": category_data_dict['name']}):
+        raise HTTPException(status_code=409, detail="Service_Category already exists")
+    try:
+        category_data_dict["id"] = str(uuid.uuid4())
         new_category = ServiceCategory(**category_data.dict())
         storage.new(new_category)
         storage.save()
         return {"message": "Service_category created sucessfully", "service_category": new_category.to_dict()}
     except Exception as e:
-        raise HTTPException(status_code=409, detail="Category already exixts")
+        raise HTTPException(status_code=409, detail=str(e))
 
 #Get list of service categories
 @service_router.get("/service_categories", response_model=list)
 async def get_service_categories():
+    storage.reload()
     service_categories = storage.all(ServiceCategory).values()
     categories = []
     for category in service_categories:
@@ -165,6 +169,7 @@ async def create_service(service_data: ServiceCreate, session_id: str = Cookie(N
         service = Service(**service_data_dict)
         storage.new(service)
         storage.save()
+        service = None
         return {"message": "New Service created succesfully", "service":service_data_dict}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -173,29 +178,82 @@ async def create_service(service_data: ServiceCreate, session_id: str = Cookie(N
 @service_router.get("/services/", response_model=list)
 async def get_services():
     services = storage.all(Service).values()
+    packages = storage.all(PricePackage).values()
     services_list = []
     for obj in services:
+        user = storage.find_by(User, **{"id": obj.user_id})
+
+        related_packages = []
+        for package in packages:
+            if package.service_id == obj.id:
+                related_packages.append({
+                    "id": package.id,
+                    "name": package.name,
+                    "description": package.description,
+                    "duration": package.duration,
+                    "price": package.price
+                })
+
         service = {
             "id": obj.id,
             "name": obj.name,
             "user_id": obj.user_id,
+            "user_name": user.username,
             "service_category_id":  obj.service_category_id,
             "sub_category": obj.sub_category,
+            "locations": obj.locations,
             "image_paths": obj.image_paths,
             "video_paths": obj.video_paths,
-            "banner_paths": obj.banner_paths
+            "banner_paths": obj.banner_paths,
+            "no_of_ratings": obj.no_of_ratings,
+            "average_rating": obj.average_rating,
+            "is_verified": obj.is_verified,
+            "price_packages": related_packages
         }
         services_list.append(service)
 
     return services_list
 
-# Get a service by id
+# Get a service by user
 @service_router.get("/services/{id}", response_model=dict)
 async def get_service(id: str):
     service = storage.find_by(Service, **{"id": id})
+
     if service is None:
         raise HTTPException(status_code=404, detail="Service not found")
-    return service.to_dict()
+    
+    service_dict = service.to_dict()
+    packages = storage.all(PricePackage).values()
+    related_packages = []
+
+    for package in packages:
+        if package.service_id == service_dict["id"]:
+            related_packages.append({
+                "id": package.id,
+                "name": package.name,
+                "description": package.description,
+                "duration": package.duration,
+                "price": package.price
+            })
+    service_dict["price_packages"] = related_packages
+    return service_dict
+
+# Get a services by user id
+@service_router.get("/services/user/{id}", response_model=list)
+async def get_user_services(id: str):
+    user = storage.find_by(User, **{"id": id})
+    services_list = []
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    try:
+        services = storage.all(Service).values()
+        for service in services:
+            if service.user_id == id:
+                services_list.append(service.to_dict())
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return services_list
 
 # Update a service
 @service_router.put("/services/{id}", response_model=dict)
@@ -268,6 +326,7 @@ async def create_service_price_package(package_data: PricePackageCreate, session
         price_package = PricePackage(**package_data_dict)
         storage.new(price_package)
         storage.save()
+        price_package = None
         return {"message": "Service price package created successfully", "price_package": price_package.to_dict()}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

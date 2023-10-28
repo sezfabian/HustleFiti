@@ -18,6 +18,7 @@ class Contract(BaseModel):
     location = Column(String(45), nullable=False)
     map_link = Column(String(255))
     duration = Column(String(45))
+    costs = Column(DECIMAL(10, 2))
     price_package_id = Column(String(45), ForeignKey('price_packages.id'), nullable=False)
     total_amount = Column(DECIMAL(10, 2))
     contract_start_date = Column(DateTime)

@@ -3,7 +3,7 @@
 This module defines the services class and related models
 ServiceCategories and PricePackages
 """
-from sqlalchemy import Column, String, DateTime, Boolean, DECIMAL, ForeignKey
+from sqlalchemy import Column, String, DateTime, Boolean, Integer, DECIMAL, ForeignKey
 from sqlalchemy.orm import relationship
 from models.base_model import Base, BaseModel
 
@@ -37,6 +37,8 @@ class Service(BaseModel):
     video_paths = Column(String(255))
     banner_paths = Column(String(255))
     is_verified = Column(Boolean, nullable=False)
+    no_of_ratings = Column(Integer, default=0)
+    average_rating = Column(DECIMAL(10, 2), default=0)
 
     # Define relationships
     user = relationship('User', back_populates='services')

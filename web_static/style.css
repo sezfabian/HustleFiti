@@ -1,0 +1,85 @@
+/* Reset some default browser styles */
+body, h1, form {
+    margin: 1rem;
+    padding: 0.5rem;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #84C7AE;
+}
+
+h1 {
+    text-align: center;
+    margin: 20px 0;
+}
+
+form {
+    background-color: #ffffff;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="tel"],
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+input[type="file"] {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #84C7AE;
+    align: center;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 15px;
+    cursor: pointer;
+    text-align: center;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#message {
+    text-align: center;
+    margin-top: 10px;
+    color: #007bff;
+}
+
+/* Style for the gender dropdown */
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 1px;
+    text-overflow: '';
+    border: none;
+    outline: none;
+    background: url('arrow-down.png') no-repeat right;
+    background-size: 18px;
+}
+
+/* You can replace 'arrow-down.png' with your own dropdown arrow image */
