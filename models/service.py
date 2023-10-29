@@ -28,7 +28,7 @@ class Service(BaseModel):
     __tablename__ = 'services'
 
     name = Column(String(45), nullable=False)
-    description = Column(String(255))
+    description = Column(String(1000))
     user_id = Column(String(45), ForeignKey('users.id'), nullable=False)
     service_category_id = Column(String(45), ForeignKey('service_categories.id'))
     sub_category = Column(String(45))
@@ -60,7 +60,7 @@ class PricePackage(BaseModel):
 
     name = Column(String(45), nullable=False)
     service_id = Column(String(45), ForeignKey('services.id'), nullable=False)
-    description = Column(String(255), nullable=False)
+    description = Column(String(500), nullable=False)
     price = Column(DECIMAL(10, 2), nullable=False)
     duration = Column(String(45))
 
