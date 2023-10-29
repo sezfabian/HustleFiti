@@ -21,7 +21,10 @@ class ServiceReviewCreate(BaseModel):
 
 # Create a new client review
 @reviews_router.post("/client_review/{contract_id}", response_model=dict, tags=["reviews"])
-async def create_client_review(contract_id: str, client_review_data: ClientReviewCreate, session_id: str = Cookie(None)):
+async def create_client_review(contract_id: str, client_review_data: ClientReviewCreate, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
     
@@ -64,7 +67,10 @@ async def create_client_review(contract_id: str, client_review_data: ClientRevie
 
 # Delete a client review
 @reviews_router.delete("/client_review/{review_id}", response_model=dict, tags=["reviews"])
-async def delete_client_review(review_id: str, session_id: str = Cookie(None)):
+async def delete_client_review(review_id: str, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
     
@@ -102,7 +108,10 @@ async def get_client_reviews(user_id: str, session_id: str = Cookie(None)):
 
 # Create a new service review
 @reviews_router.post("/service_review/{contract_id}", response_model=dict, tags=["reviews"])
-async def create_service_review(contract_id: str, service_review_data: ServiceReviewCreate, session_id: str = Cookie(None)):
+async def create_service_review(contract_id: str, service_review_data: ServiceReviewCreate, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
     
@@ -115,8 +124,6 @@ async def create_service_review(contract_id: str, service_review_data: ServiceRe
 
     if contract is None or contract.to_dict()["user_id"] != user.to_dict()["id"]:
         raise HTTPException(status_code=403, detail="Unauthorized")
-    
-    
 
     try:
         service_review_data_dict = service_review_data.dict()
@@ -141,7 +148,10 @@ async def create_service_review(contract_id: str, service_review_data: ServiceRe
 
 # Delete a service review
 @reviews_router.delete("/service_review/{review_id}", response_model=dict, tags=["reviews"])
-async def delete_service_review(review_id: str, session_id: str = Cookie(None)):
+async def delete_service_review(review_id: str, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
 

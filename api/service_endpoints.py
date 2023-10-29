@@ -53,7 +53,10 @@ class PricePackageUpdate(BaseModel):
 
 #create service category
 @service_router.post("/service_category", response_model=dict)
-def create_service_category(category_data: ServiceCategoryCreate, session_id: str = Cookie(None)):
+def create_service_category(category_data: ServiceCategoryCreate, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
     user = storage.find_by(User, **{"session_id": session_id})
@@ -104,7 +107,10 @@ async def get_service_category(id: str):
 
 # Update a service category
 @service_router.put("/service_category/{id}", response_model=dict)
-async def update_service_category(id: str, category_data: ServiceCategoryUpdate, session_id: str = Cookie(None)):
+async def update_service_category(id: str, category_data: ServiceCategoryUpdate, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
 
@@ -129,7 +135,10 @@ async def update_service_category(id: str, category_data: ServiceCategoryUpdate,
 
 # Delete a service category
 @service_router.delete("/service_category/{id}", response_model=dict)
-async def delete_service_category(id: str, session_id: str = Cookie(None)):
+async def delete_service_category(id: str, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+    
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
 
@@ -150,7 +159,10 @@ async def delete_service_category(id: str, session_id: str = Cookie(None)):
 
 # Create a service
 @service_router.post("/services/", response_model=dict)
-async def create_service(service_data: ServiceCreate, session_id: str = Cookie(None)):
+async def create_service(service_data: ServiceCreate, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+    
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
 
@@ -257,7 +269,10 @@ async def get_user_services(id: str):
 
 # Update a service
 @service_router.put("/services/{id}", response_model=dict)
-async def update_service(id: str, service_data: ServiceUpdate, session_id: str = Cookie(None)):
+async def update_service(id: str, service_data: ServiceUpdate, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+    
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
 
@@ -283,7 +298,10 @@ async def update_service(id: str, service_data: ServiceUpdate, session_id: str =
 
 # Delete a service
 @service_router.delete("/services/{id}", response_model=dict)
-async def delete_service(id: str, session_id: str = Cookie(None)):
+async def delete_service(id: str, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
     
@@ -304,7 +322,10 @@ async def delete_service(id: str, session_id: str = Cookie(None)):
 
 # Create a service price package
 @service_router.post("/service_price_package", response_model=dict)
-async def create_service_price_package(package_data: PricePackageCreate, session_id: str = Cookie(None)):
+async def create_service_price_package(package_data: PricePackageCreate, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
     
@@ -359,7 +380,18 @@ async def get_service_price_package(id: str):
 
 # Update a service price package
 @service_router.put("/service_price_package/{id}", response_model=dict)
-async def update_service_price_package(id: str, package_data: PricePackageUpdate):
+async def update_service_price_package(id: str, package_data: PricePackageUpdate, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+    
+    if session_id is None:
+        raise HTTPException(status_code=403, detail="User not logged in")
+    
+    user = storage.find_by(User, **{"session_id": session_id})
+
+    if user is None:
+        raise HTTPException(status_code=403, detail="User session expired")
+
     price_package = storage.find_by(PricePackage, **{"id": id})
     if price_package is None:
         raise HTTPException(status_code=404, detail="Service price package not found")
@@ -374,7 +406,32 @@ async def update_service_price_package(id: str, package_data: PricePackageUpdate
 
 # Delete a service price package
 @service_router.delete("/service_price_package/{id}", response_model=dict)
-async def delete_service_price_package(id: str):
+async def delete_service_price_package(id: str, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    """
+    Delete a service price package.
+
+    Args:
+        id (str): The ID of the service price package to delete.
+        session_id (str, optional): The session ID of the user. Defaults to None.
+        encrypted_session_id (str, optional): The encrypted session ID of the user. Defaults to None.
+
+    Raises:
+        HTTPException: If the user is not logged in or the user session has expired.
+        HTTPException: If the service price package is not found.
+
+    Returns:
+        dict: A dictionary with a success message.
+    """
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+    
+    if session_id is None:
+        raise HTTPException(status_code=403, detail="User not logged in")
+    
+    user = storage.find_by(User, **{"session_id": session_id})
+
+    if user is None:
+        raise HTTPException(status_code=403, detail="User session expired")
     price_package = storage.find_by(PricePackage, **{"id": id})
     if price_package is None:
         raise HTTPException(status_code=404, detail="Service price package not found")

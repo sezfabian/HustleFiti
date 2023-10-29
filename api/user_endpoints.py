@@ -33,6 +33,21 @@ class UserVerification(BaseModel):
 
 @user_router.post("/register", response_model=dict)
 async def register_user(user_data: UserCreate):
+    """
+    Registers a new user with the provided user data.
+
+    Parameters:
+        - user_data: An instance of the UserCreate model representing the data of the user to be registered.
+
+    Returns:
+        - A dictionary with the following keys:
+            - "message": A string indicating the success message.
+            - "email": The email address of the registered user.
+
+    Raises:
+        - HTTPException with status code 409 if a value error occurs during registration.
+        - HTTPException with status code 400 if any other exception occurs during registration.
+    """
     try:
         user_data_dict = user_data.dict()
         user_data_dict['date_of_birth'] = user_data.date_of_birth
@@ -45,6 +60,21 @@ async def register_user(user_data: UserCreate):
 
 @user_router.post("/sessions", response_model=dict)
 async def login(session: UserSession, session_id: str = Cookie(None)):
+    """
+    Endpoint to handle user login sessions.
+
+    Parameters:
+        - session: The user session object containing the email and password.
+        - session_id: The session ID stored in a cookie.
+
+    Returns:
+        - If the login is successful, a JSON response with the user's email, a success message,
+          and an encrypted session ID in the headers.
+        - If the login fails, an HTTPException with a status code of 401 and a detail message.
+
+    Raises:
+        - HTTPException: If the login credentials are invalid.
+    """
     email = session.email
     password = session.password
     if auth.valid_login(email, password):
@@ -54,7 +84,23 @@ async def login(session: UserSession, session_id: str = Cookie(None)):
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
 @user_router.delete("/sessions", response_model=dict)
-async def logout(session_id: str = Cookie(None)):
+async def logout(session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    """
+    Delete a session and log out the user.
+
+    Parameters:
+        session_id (str): The session ID of the user. It is obtained from the session cookie.
+        encrypted_session_id (Optional[str]): An optional encrypted session ID. If provided, it will be decrypted and used as the session ID.
+
+    Returns:
+        dict: A dictionary containing the email and message indicating that the user has been logged out.
+
+    Raises:
+        HTTPException: If the user is not logged in.
+
+    """
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
     user = auth.get_user_from_session_id(session_id)
     if user is None:
         raise HTTPException(status_code=401, detail="User not logged in")
@@ -63,6 +109,16 @@ async def logout(session_id: str = Cookie(None)):
 
 @user_router.get("/profile", response_model=dict)
 async def profile(session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    """
+    Retrieves the profile information of a user.
+
+    Parameters:
+        session_id (str): The session ID of the user. Retrieved from the cookie.
+        encrypted_session_id (Optional[str]): An optional encrypted session ID.
+
+    Returns:
+        dict: A dictionary containing the user's profile information, excluding sensitive data.
+    """
     if encrypted_session_id:
         session_id = encrypted_session_id.rstrip('*')
     user = auth.get_user_from_session_id(session_id)
@@ -77,8 +133,27 @@ async def profile(session_id: str = Cookie(None), encrypted_session_id: Optional
     return user_data
 
 @user_router.put("/profile", response_model=dict)
-async def update_user_details(user_data: Dict, session_id: str = Cookie(None)):
+async def update_user_details(user_data: Dict, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    """
+    Update user details.
+
+    Args:
+        user_data (Dict): A dictionary containing the user's data.
+        session_id (str, optional): The session ID of the user. Defaults to None.
+        encrypted_session_id (str, optional): The encrypted session ID of the user. Defaults to None.
+
+    Returns:
+        dict: A dictionary containing the updated user data.
+
+    Raises:
+        HTTPException: If the user is not logged in.
+        HTTPException: If there is an error updating the user details.
+    """
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
     user = auth.get_user_from_session_id(session_id)
+
     if user is None:
         raise HTTPException(status_code=401, detail="User not logged in")
     try:
@@ -96,6 +171,18 @@ async def update_user_details(user_data: Dict, session_id: str = Cookie(None)):
 
 @user_router.post("/verify", response_model=dict)
 async def verify(verification_data: UserVerification):
+    """
+    Verify a user's account using the provided verification data.
+
+    Args:
+        verification_data (UserVerification): The verification data containing the email and token.
+
+    Returns:
+        dict: A dictionary with a message indicating whether the user was verified successfully.
+
+    Raises:
+        HTTPException: If the verification code is invalid.
+    """
     try:
         auth.verify_account(verification_data.email, verification_data.token)
         return {"message": "User verified successfully"}
@@ -104,7 +191,22 @@ async def verify(verification_data: UserVerification):
 
 #Delete user account
 @user_router.delete("/delete", response_model=dict)
-async def delete_user(session_id: str = Cookie(None)):
+async def delete_user(session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    """
+    Deletes a user.
+
+    Parameters:
+        session_id (str): The session ID of the user. It is obtained from the cookie.
+        encrypted_session_id (Optional[str]): An optional encrypted session ID. If provided, the function will use this instead of the session ID obtained from the cookie.
+
+    Returns:
+        dict: A dictionary containing the message "User deleted successfully" if the user was deleted successfully.
+
+    Raises:
+        HTTPException: If the user is not logged in or if the user is not found.
+    """
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
     user = auth.get_user_from_session_id(session_id)
     if user is None:
         raise HTTPException(status_code=401, detail="User not logged in")

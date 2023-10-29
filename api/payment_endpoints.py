@@ -23,7 +23,10 @@ class PaymentCreate(BaseModel):
 
 # create a new payment
 @payment_router.post("/payment/{contract_id}", response_model=dict)
-async def create_payment(contract_id: str, payment_data: PaymentCreate, session_id: str = Cookie(None)):
+async def create_payment(contract_id: str, payment_data: PaymentCreate, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+  
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
     
@@ -60,7 +63,10 @@ async def get_payment(payment_id: str, session_id: str = Cookie(None)):
 
 # Get payments by user  
 @payment_router.get("/payments", response_model=list)
-async def get_payments(session_id: str = Cookie(None)):
+async def get_payments(session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
     
@@ -79,7 +85,10 @@ async def get_payments(session_id: str = Cookie(None)):
 
 # Get all payments by contract
 @payment_router.get("/payments/{contract_id}", response_model=list)
-async def get_payments_by_contract(contract_id: str, session_id: str = Cookie(None)):
+async def get_payments_by_contract(contract_id: str, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
     
@@ -102,7 +111,10 @@ async def get_payments_by_contract(contract_id: str, session_id: str = Cookie(No
 
 # delete payment records
 @payment_router.delete("/payment/{payment_id}", response_model=dict)
-async def delete_payment(payment_id: str, session_id: str = Cookie(None)):
+async def delete_payment(payment_id: str, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
     
