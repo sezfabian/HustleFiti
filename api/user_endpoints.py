@@ -54,7 +54,9 @@ async def login(session: UserSession, session_id: str = Cookie(None)):
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
 @user_router.delete("/sessions", response_model=dict)
-async def logout(session_id: str = Cookie(None)):
+async def logout(session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
     user = auth.get_user_from_session_id(session_id)
     if user is None:
         raise HTTPException(status_code=401, detail="User not logged in")
@@ -77,8 +79,12 @@ async def profile(session_id: str = Cookie(None), encrypted_session_id: Optional
     return user_data
 
 @user_router.put("/profile", response_model=dict)
-async def update_user_details(user_data: Dict, session_id: str = Cookie(None)):
+async def update_user_details(user_data: Dict, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
     user = auth.get_user_from_session_id(session_id)
+
     if user is None:
         raise HTTPException(status_code=401, detail="User not logged in")
     try:
@@ -104,7 +110,9 @@ async def verify(verification_data: UserVerification):
 
 #Delete user account
 @user_router.delete("/delete", response_model=dict)
-async def delete_user(session_id: str = Cookie(None)):
+async def delete_user(session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
     user = auth.get_user_from_session_id(session_id)
     if user is None:
         raise HTTPException(status_code=401, detail="User not logged in")

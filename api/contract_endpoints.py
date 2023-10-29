@@ -34,7 +34,10 @@ class ContractUpdate(BaseModel):
 
 # create a contract
 @contract_router.post("/create", response_model=dict)
-async def create_contract(contract_data: ContractCreate, session_id: str = Cookie(None)):
+async def create_contract(contract_data: ContractCreate, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
 
@@ -55,7 +58,13 @@ async def create_contract(contract_data: ContractCreate, session_id: str = Cooki
 
 # update contract
 @contract_router.put("/update/{contract_id}", response_model=dict)
-async def update_contract(contract_id: str, contract_data: ContractUpdate, session_id: str = Cookie(None)):
+async def update_contract(contract_id: str, contract_data: ContractUpdate, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
+    if session_id is None:
+        raise HTTPException(status_code=403, detail="User not logged in")
+
     user = storage.find_by(User, **{"session_id": session_id})
     if user is None:
         raise HTTPException(status_code=403, detail="User not logged in")
@@ -82,7 +91,10 @@ async def update_contract(contract_id: str, contract_data: ContractUpdate, sessi
 
 # delete contract
 @contract_router.delete("/delete/{contract_id}", response_model=dict)
-async def delete_contract(contract_id: str, session_id: str = Cookie(None)):
+async def delete_contract(contract_id: str, session_id: str = Cookie(None), encrypted_session_id: Optional[str] = None):
+    if encrypted_session_id:
+        session_id = encrypted_session_id.rstrip('*')
+
     if session_id is None:
         raise HTTPException(status_code=403, detail="User not logged in")
     
