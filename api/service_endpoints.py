@@ -209,6 +209,7 @@ async def get_services():
         service = {
             "id": obj.id,
             "name": obj.name,
+            "description": obj.description,
             "user_id": obj.user_id,
             "user_name": user.username,
             "service_category_id":  obj.service_category_id,
