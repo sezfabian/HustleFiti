@@ -1,3 +1,4 @@
+import ssl
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse, PlainTextResponse, JSONResponse, RedirectResponse
 from fastapi.openapi.utils import get_openapi
@@ -10,7 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(swagger_ui_parameters={"deepLinking": True,})
 
-
+ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+ssl_context.load_cert_chain('./cert.pem', keyfile='./key.pem')
 
 app.add_middleware(
     CORSMiddleware,
@@ -60,4 +62,4 @@ async def docs():
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000, ssl=ssl_context)
