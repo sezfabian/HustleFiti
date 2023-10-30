@@ -181,6 +181,7 @@ async def create_service(service_data: ServiceCreate, session_id: str = Cookie(N
         service = Service(**service_data_dict)
         storage.new(service)
         storage.save()
+        service_data_dict = service.to_dict()
         service = None
         return {"message": "New Service created succesfully", "service":service_data_dict}
     except Exception as e:
