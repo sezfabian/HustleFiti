@@ -16,7 +16,7 @@ ssl_context.load_cert_chain('./cert.pem', keyfile='./key.pem')
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080", "http://192.168.8.104:8080"],  # Specify the allowed origins as a list of strings
+    allow_origins=["http://localhost:8080", "http://192.168.8.104:8080", 'http://35.154.52.204'],  # Specify the allowed origins as a list of strings
     allow_credentials=True,
     allow_methods=["*"],  # Specify the allowed HTTP methods as a list of strings
     allow_headers=["*"],  # Specify the allowed HTTP headers as a list of strings
