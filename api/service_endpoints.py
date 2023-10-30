@@ -181,6 +181,7 @@ async def create_service(service_data: ServiceCreate, session_id: str = Cookie(N
         service = Service(**service_data_dict)
         storage.new(service)
         storage.save()
+        service_data_dict = service.to_dict()
         service = None
         return {"message": "New Service created succesfully", "service":service_data_dict}
     except Exception as e:
@@ -344,11 +345,9 @@ async def create_service_price_package(package_data: PricePackageCreate, session
         raise HTTPException(status_code=403, detail="Unauthorized")
     
     try:
-        package_data_dict["service_id"] = service_id
         price_package = PricePackage(**package_data_dict)
         storage.new(price_package)
         storage.save()
-        price_package = None
         return {"message": "Service price package created successfully", "price_package": price_package.to_dict()}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
