@@ -345,7 +345,6 @@ async def create_service_price_package(package_data: PricePackageCreate, session
         raise HTTPException(status_code=403, detail="Unauthorized")
     
     try:
-        package_data_dict["service_id"] = service_id
         price_package = PricePackage(**package_data_dict)
         storage.new(price_package)
         storage.save()
