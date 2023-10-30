@@ -32,11 +32,11 @@ class User(BaseModel):
 
 
     # Define relationships
-    services = relationship('Service', back_populates='user')
-    user_contracts = relationship('Contract', backref='users')
-    user_payments = relationship('Payment', backref='users')
-    user_client_reviews = relationship('ClientReview', backref='users')
-    user_service_reviews = relationship('ServiceReview', backref='users')
+    services = relationship('Service', back_populates='user', cascade='all, delete')
+    user_contracts = relationship('Contract', backref='users', cascade='all, delete')
+    user_payments = relationship('Payment', backref='users', cascade='all, delete')
+    user_client_reviews = relationship('ClientReview', backref='users', cascade='all, delete')
+    user_service_reviews = relationship('ServiceReview', backref='users', cascade='all, delete')
     
     # Define __init__ method with super class
     def __init__(self, *args, **kwargs):

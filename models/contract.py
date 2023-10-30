@@ -27,9 +27,9 @@ class Contract(BaseModel):
     paid_amount = Column(DECIMAL(10, 2), nullable=False)
 
     # Define relationships
-    contract_service_review = relationship('ServiceReview', backref='contracts')
-    contract_client_review = relationship('ClientReview', backref='contracts')
-    contract_payments = relationship('Payment', backref='contracts')
+    contract_service_review = relationship('ServiceReview', backref='contracts', cascade='all, delete')
+    contract_client_review = relationship('ClientReview', backref='contracts', cascade='all, delete')
+    contract_payments = relationship('Payment', backref='contracts', cascade='all, delete')
 
     # Define __init__ method with super class
     def __init__(self, *args, **kwargs):

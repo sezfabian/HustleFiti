@@ -42,9 +42,9 @@ class Service(BaseModel):
 
     # Define relationships
     user = relationship('User', back_populates='services')
-    service_price_packages = relationship('PricePackage', backref='services')
-    service_contracts = relationship('Contract', backref='services')
-    service_reviews = relationship('ServiceReview', backref='services')
+    service_price_packages = relationship('PricePackage', backref='services', cascade='all, delete')
+    service_contracts = relationship('Contract', backref='services', cascade='all, delete')
+    service_reviews = relationship('ServiceReview', backref='services', cascade='all, delete')
 
     # Define __init__ method with super class
     def __init__(self, *args, **kwargs):
