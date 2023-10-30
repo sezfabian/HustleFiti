@@ -348,7 +348,6 @@ async def create_service_price_package(package_data: PricePackageCreate, session
         price_package = PricePackage(**package_data_dict)
         storage.new(price_package)
         storage.save()
-        price_package = None
         return {"message": "Service price package created successfully", "price_package": price_package.to_dict()}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
