@@ -22,7 +22,8 @@ An open API for an Online Marketplace for contract service providers HustleFiti 
 Clone this repository
 
 ### in the projects root directoy run this to setup Mariadb
-####consider changing usernames ans passwords in setup as they are required as environment variables in running fastapi with slalchemy
+consider changing usernames ans passwords in setup as they are required as environment variables in running fastapi with slalchemy
+
 ```./setup/setup_mariadb.sh```
 
 ### or for mysql 
