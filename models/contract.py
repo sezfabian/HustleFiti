@@ -24,7 +24,7 @@ class Contract(BaseModel):
     contract_start_date = Column(DateTime)
     contract_end_date = Column(DateTime)
     contract_status = Column(String(45), nullable=False)
-    paid_amount = Column(DECIMAL(10, 2), nullable=False)
+    paid_amount = Column(DECIMAL(10, 2), nullable=False, default=0)
 
     # Define relationships
     contract_service_review = relationship('ServiceReview', backref='contracts', cascade='all, delete')
