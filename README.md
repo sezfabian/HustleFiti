@@ -31,7 +31,7 @@ Clone this repository
 ```./setup/setup_python.sh```
 
 ### Open a brevo account to get brevo api key and initiate environmet variables as:
-```export ENV_HUSTLE_API="*********************************************"  ENV_MYSQL_USER="*******" ENV_MYSQL_PWD="********" ENV_MYSQL_HOST="localhost" ENV_MYSQL_DB="hustle_db"
+```export ENV_HUSTLE_API="*********************************************"  ENV_MYSQL_USER="*******" ENV_MYSQL_PWD="********" ENV_MYSQL_HOST="localhost" ENV_MYSQL_DB="hustle_db"```
 
 ### to run fastapi  as localhost in developer mode use
 ```uvicorn main:app --reload```
