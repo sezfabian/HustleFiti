@@ -19,7 +19,7 @@ class ContractCreate(BaseModel):
     total_amount: Optional[float] = None
     contract_start_date: Optional[str] = None
     contract_end_date: Optional[str] = None
-    contract_status: Optional[str] = None
+    contract_status: Optional[str] = "Pending"
 
 class ContractUpdate(BaseModel):
     location: Optional[str] = None
