@@ -21,6 +21,9 @@ An open API for an Online Marketplace for contract service providers HustleFiti 
 ## Installation Ubuntu 20 - 22
 Clone this repository
 
+### use fast API branch
+```git checkout UpdatedFastAPI```
+
 ### in the projects root directoy run this to setup Mariadb
 consider changing usernames ans passwords in setup as they are required as environment variables in running fastapi with slalchemy
 
