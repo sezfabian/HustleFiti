@@ -1,3 +1,0 @@
-flaskapp
-models
-tests
